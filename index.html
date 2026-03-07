@@ -116,6 +116,85 @@
         .jump-btn:active, .jump-btn.pressed {
             background: rgba(255,100,100,0.7);
         }
+        
+        /* Virtual Joystick */
+        .joystick-container {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 120px;
+            height: 120px;
+            display: none;
+            z-index: 100;
+            pointer-events: auto;
+        }
+        
+        .joystick-container.active {
+            display: block;
+        }
+        
+        .joystick-base {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 3px solid rgba(255,255,255,0.3);
+            box-shadow: 0 0 20px rgba(0,0,0,0.3), inset 0 0 30px rgba(255,255,255,0.1);
+        }
+        
+        .joystick-knob {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0.2));
+            border: 2px solid rgba(255,255,255,0.5);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            transition: transform 0.05s ease-out;
+        }
+        
+        .joystick-knob.active {
+            background: linear-gradient(145deg, rgba(255,255,255,0.6), rgba(255,255,255,0.3));
+            border-color: rgba(255,255,255,0.8);
+            box-shadow: 0 0 25px rgba(57, 255, 20, 0.5);
+        }
+        
+        /* Jump zone button */
+        .jump-zone {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255,0,0,0.3);
+            border: 2px solid rgba(255,100,100,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: rgba(255,255,255,0.8);
+            z-index: 100;
+            pointer-events: auto;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+        
+        .jump-zone.active {
+            display: flex;
+        }
+        
+        .jump-zone:active, .jump-zone.pressed {
+            background: rgba(255,100,100,0.6);
+            border-color: rgba(255,255,255,0.8);
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body>
@@ -204,7 +283,17 @@
             <div class="score-display hidden" id="score-display">Score: 0</div>
             <div class="game-info hidden" id="game-info"></div>
         </div>
-        <!-- Mobile Controls -->
+        
+        <!-- Virtual Joystick for Run -->
+        <div class="joystick-container" id="joystick-container">
+            <div class="joystick-base"></div>
+            <div class="joystick-knob" id="joystick-knob"></div>
+        </div>
+        
+        <!-- Jump Button -->
+        <div class="jump-zone" id="jump-zone">JUMP</div>
+        
+        <!-- Mobile Controls (D-pad fallback) -->
         <div class="mobile-controls" id="mobile-controls">
             <div class="dpad">
                 <button class="control-btn" id="btn-left">◀</button>

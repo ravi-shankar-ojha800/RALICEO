@@ -1,5 +1,17 @@
 // ==================== RALICEO - Mobile Game Hub ====================
 
+// Joystick State
+const joystickState = {
+    active: false,
+    startX: 0,
+    startY: 0,
+    currentX: 0,
+    currentY: 0,
+    touchId: null,
+    isTap: false,
+    tapTimeout: null
+};
+
 // Game State
 const gameState = {
     playerName: 'Player',
@@ -42,6 +54,7 @@ const ctx = elements.canvas.getContext('2d');
 function init() {
     setupCanvas();
     setupEventListeners();
+    setupJoystick();
     checkOrientation();
     showScreen('loading');
     
@@ -1752,6 +1765,281 @@ function handleSnakeKey(event) {
 
 function updateSnakeScore() {
     elements.scoreDisplay.textContent = `Score: ${gameState.score}`;
+}
+
+// ==================== VIRTUAL JOYSTICK ====================
+
+function setupJoystick() {
+    const joystickContainer = document.getElementById('joystick-container');
+    const joystickKnob = document.getElementById('joystick-knob');
+    const jumpZone = document.getElementById('jump-zone');
+    
+    if (!joystickContainer || !joystickKnob || !jumpZone) return;
+    
+    // Check if mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+    
+    // Show joystick on mobile
+    if (isMobile) {
+        joystickContainer.classList.add('active');
+        jumpZone.classList.add('active');
+    }
+    
+    // Joystick touch handling
+    const joystickBase = joystickContainer;
+    const maxDistance = 35; // Max knob movement distance
+    const jumpThreshold = 15; // Threshold for detecting upward swipe as jump
+    
+    // Initialize keys object
+    window.mumarioKeys = { left: false, right: false };
+    
+    // Joystick touch start
+    joystickBase.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const touch = e.changedTouches[0];
+        joystickState.touchId = touch.identifier;
+        joystickState.active = true;
+        joystickState.isTap = true;
+        
+        // Get joystick center position
+        const rect = joystickBase.getBoundingClientRect();
+        joystickState.startX = rect.left + rect.width / 2;
+        joystickState.startY = rect.top + rect.height / 2;
+        
+        joystickState.currentX = touch.clientX;
+        joystickState.currentY = touch.clientY;
+        
+        // Clear any existing tap timeout
+        if (joystickState.tapTimeout) {
+            clearTimeout(joystickState.tapTimeout);
+        }
+        
+        // Set tap detection timeout (150ms)
+        joystickState.tapTimeout = setTimeout(function() {
+            joystickState.isTap = false;
+        }, 150);
+        
+        joystickKnob.classList.add('active');
+    }, { passive: false });
+    
+    // Joystick touch move
+    joystickBase.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (!joystickState.active) return;
+        
+        // Find the joystick touch
+        let touch = null;
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            if (e.changedTouches[i].identifier === joystickState.touchId) {
+                touch = e.changedTouches[i];
+                break;
+            }
+        }
+        
+        if (!touch) return;
+        
+        joystickState.isTap = false;
+        if (joystickState.tapTimeout) {
+            clearTimeout(joystickState.tapTimeout);
+            joystickState.tapTimeout = null;
+        }
+        
+        const dx = touch.clientX - joystickState.startX;
+        const dy = touch.clientY - joystickState.startY;
+        
+        // Calculate distance and clamp
+        const distance = Math.min(Math.sqrt(dx * dx + dy * dy), maxDistance);
+        const angle = Math.atan2(dy, dx);
+        
+        // Move knob
+        const knobX = Math.cos(angle) * distance;
+        const knobY = Math.sin(angle) * distance;
+        joystickKnob.style.transform = `translate(calc(-50% + ${knobX}px), calc(-50% + ${knobY}px))`;
+        
+        // Set movement direction
+        const threshold = 10;
+        
+        if (dx < -threshold) {
+            window.mumarioKeys.left = true;
+            window.mumarioKeys.right = false;
+        } else if (dx > threshold) {
+            window.mumarioKeys.right = true;
+            window.mumarioKeys.left = false;
+        } else {
+            window.mumarioKeys.left = false;
+            window.mumarioKeys.right = false;
+        }
+        
+        // Check for upward swipe for jump
+        if (dy < -jumpThreshold && gameState.isPlaying) {
+            if (gameState.currentGame === 'mumario') {
+                mumarioJump();
+            } else if (gameState.currentGame === 'flappybird') {
+                flappyFlap();
+            }
+        }
+    }, { passive: false });
+    
+    // Joystick touch end
+    joystickBase.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Check if our touch ended
+        let found = false;
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            if (e.changedTouches[i].identifier === joystickState.touchId) {
+                found = true;
+                break;
+            }
+        }
+        
+        if (!found) return;
+        
+        joystickState.active = false;
+        joystickState.touchId = null;
+        
+        // Reset knob position
+        joystickKnob.style.transform = 'translate(-50%, -50%)';
+        joystickKnob.classList.remove('active');
+        
+        // Reset keys
+        window.mumarioKeys.left = false;
+        window.mumarioKeys.right = false;
+        
+        // Handle tap for jump
+        if (joystickState.isTap && gameState.isPlaying) {
+            if (gameState.currentGame === 'mumario') {
+                mumarioJump();
+            } else if (gameState.currentGame === 'flappybird') {
+                flappyFlap();
+            } else if (gameState.currentGame === 'dino') {
+                dinoJump();
+            }
+        }
+    }, { passive: false });
+    
+    // Joystick touch cancel
+    joystickBase.addEventListener('touchcancel', function(e) {
+        joystickState.active = false;
+        joystickState.touchId = null;
+        joystickKnob.style.transform = 'translate(-50%, -50%)';
+        joystickKnob.classList.remove('active');
+        window.mumarioKeys.left = false;
+        window.mumarioKeys.right = false;
+    });
+    
+    // Jump zone touch handling
+    jumpZone.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        jumpZone.classList.add('pressed');
+        
+        if (gameState.isPlaying) {
+            if (gameState.currentGame === 'mumario') {
+                mumarioJump();
+            } else if (gameState.currentGame === 'flappybird') {
+                flappyFlap();
+            } else if (gameState.currentGame === 'dino') {
+                dinoJump();
+            }
+        }
+    }, { passive: false });
+    
+    jumpZone.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        jumpZone.classList.remove('pressed');
+    }, { passive: false });
+    
+    // Mouse support for testing
+    let isMouseDown = false;
+    
+    joystickBase.addEventListener('mousedown', function(e) {
+        isMouseDown = true;
+        joystickKnob.classList.add('active');
+        joystickState.active = true;
+        
+        const rect = joystickBase.getBoundingClientRect();
+        joystickState.startX = rect.left + rect.width / 2;
+        joystickState.startY = rect.top + rect.height / 2;
+        joystickState.currentX = e.clientX;
+        joystickState.currentY = e.clientY;
+    });
+    
+    document.addEventListener('mousemove', function(e) {
+        if (!isMouseDown || !joystickState.active) return;
+        
+        const dx = e.clientX - joystickState.startX;
+        const dy = e.clientY - joystickState.startY;
+        
+        const distance = Math.min(Math.sqrt(dx * dx + dy * dy), maxDistance);
+        const angle = Math.atan2(dy, dx);
+        
+        const knobX = Math.cos(angle) * distance;
+        const knobY = Math.sin(angle) * distance;
+        joystickKnob.style.transform = `translate(calc(-50% + ${knobX}px), calc(-50% + ${knobY}px))`;
+        
+        const threshold = 10;
+        
+        if (dx < -threshold) {
+            window.mumarioKeys.left = true;
+            window.mumarioKeys.right = false;
+        } else if (dx > threshold) {
+            window.mumarioKeys.right = true;
+            window.mumarioKeys.left = false;
+        } else {
+            window.mumarioKeys.left = false;
+            window.mumarioKeys.right = false;
+        }
+        
+        // Check for upward movement for jump
+        if (dy < -jumpThreshold && gameState.isPlaying) {
+            if (gameState.currentGame === 'mumario') {
+                mumarioJump();
+            } else if (gameState.currentGame === 'flappybird') {
+                flappyFlap();
+            }
+        }
+    });
+    
+    document.addEventListener('mouseup', function(e) {
+        if (!isMouseDown) return;
+        
+        isMouseDown = false;
+        joystickState.active = false;
+        joystickKnob.style.transform = 'translate(-50%, -50%)';
+        joystickKnob.classList.remove('active');
+        window.mumarioKeys.left = false;
+        window.mumarioKeys.right = false;
+    });
+    
+    // Jump zone mouse support
+    jumpZone.addEventListener('mousedown', function(e) {
+        jumpZone.classList.add('pressed');
+        
+        if (gameState.isPlaying) {
+            if (gameState.currentGame === 'mumario') {
+                mumarioJump();
+            } else if (gameState.currentGame === 'flappybird') {
+                flappyFlap();
+            } else if (gameState.currentGame === 'dino') {
+                dinoJump();
+            }
+        }
+    });
+    
+    jumpZone.addEventListener('mouseup', function() {
+        jumpZone.classList.remove('pressed');
+    });
+    
+    jumpZone.addEventListener('mouseleave', function() {
+        jumpZone.classList.remove('pressed');
+    });
 }
 
 // ==================== START THE APP ====================
