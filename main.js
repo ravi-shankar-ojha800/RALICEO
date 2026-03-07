@@ -1,5 +1,9 @@
 // ==================== RALICEO - Mobile Game Hub ====================
 
+// GIF Background for Mumario
+const mumarioBg = new Image();
+mumarioBg.src = 'https://i.pinimg.com/originals/46/ac/9e/46ac9e282d3c303934a72d941845785b.gif';
+
 // Check if mobile device
 const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
 
@@ -1089,26 +1093,49 @@ function updateMumario() {
 }
 
 function drawMumario() {
-    // Sky gradient background
-    const gradient = ctx.createLinearGradient(0, 0, 0, elements.canvas.height);
-    gradient.addColorStop(0, '#1a1a4e');
-    gradient.addColorStop(0.5, '#2d2d6e');
-    gradient.addColorStop(1, '#1a1a3e');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, elements.canvas.width, elements.canvas.height);
-    
-    // Draw stars
-    ctx.fillStyle = '#ffffff';
-    for (let i = 0; i < 50; i++) {
-        const starX = (i * 137 + mumarioCameraX * 0.1) % elements.canvas.width;
-        const starY = (i * 89) % (elements.canvas.height - 100);
-        const size = (i % 3) + 1;
-        ctx.globalAlpha = 0.3 + (i % 5) * 0.1;
-        ctx.beginPath();
-        ctx.arc(starX, starY, size, 0, Math.PI * 2);
-        ctx.fill();
+    // Draw GIF background if loaded, otherwise use gradient
+    if (mumarioBg.complete && mumarioBg.naturalHeight !== 0) {
+        // Draw GIF scaled to cover canvas
+        const imgRatio = mumarioBg.naturalWidth / mumarioBg.naturalHeight;
+        const canvasRatio = elements.canvas.width / elements.canvas.height;
+        
+        let drawWidth, drawHeight, offsetX, offsetY;
+        
+        if (canvasRatio > imgRatio) {
+            drawWidth = elements.canvas.width;
+            drawHeight = elements.canvas.width / imgRatio;
+            offsetX = 0;
+            offsetY = (elements.canvas.height - drawHeight) / 2;
+        } else {
+            drawHeight = elements.canvas.height;
+            drawWidth = elements.canvas.height * imgRatio;
+            offsetX = (elements.canvas.width - drawWidth) / 2;
+            offsetY = 0;
+        }
+        
+        ctx.drawImage(mumarioBg, offsetX, offsetY, drawWidth, drawHeight);
+    } else {
+        // Fallback gradient if GIF not loaded
+        const gradient = ctx.createLinearGradient(0, 0, 0, elements.canvas.height);
+        gradient.addColorStop(0, '#1a1a4e');
+        gradient.addColorStop(0.5, '#2d2d6e');
+        gradient.addColorStop(1, '#1a1a3e');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, elements.canvas.width, elements.canvas.height);
+        
+        // Draw stars as fallback
+        ctx.fillStyle = '#ffffff';
+        for (let i = 0; i < 50; i++) {
+            const starX = (i * 137 + mumarioCameraX * 0.1) % elements.canvas.width;
+            const starY = (i * 89) % (elements.canvas.height - 100);
+            const size = (i % 3) + 1;
+            ctx.globalAlpha = 0.3 + (i % 5) * 0.1;
+            ctx.beginPath();
+            ctx.arc(starX, starY, size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
     }
-    ctx.globalAlpha = 1;
     
     ctx.save();
     ctx.translate(-mumarioCameraX, 0);
