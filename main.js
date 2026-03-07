@@ -170,7 +170,12 @@ function playClickSound() {
 }
 
 function playGameOverSound() {
-    // Placeholder for game over sound - can be added later
+    const gameoverSound = document.getElementById('gameover-sound');
+    if (gameoverSound) {
+        gameoverSound.currentTime = 0;
+        gameoverSound.volume = 0.5;
+        gameoverSound.play().catch(e => console.log('Audio play failed'));
+    }
 }
 
 // ==================== PARTICLE EFFECTS ====================
@@ -252,6 +257,13 @@ function gameOver() {
     
     if (gameState.gameLoop) {
         cancelAnimationFrame(gameState.gameLoop);
+    }
+    
+    // Stop background music
+    const bgMusic = document.getElementById('bg-music');
+    if (bgMusic) {
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
     }
     
     playGameOverSound();
@@ -595,80 +607,58 @@ function updateDinoScore() {
     elements.scoreDisplay.textContent = `Score: ${dinoScore}`;
 }
 
-// ==================== GAME 3: MUMARIO (IMPROVED) ====================
+// ==================== GAME 3: MUMARIO (ENDLESS MODE) ====================
 
-let mumario = { x: 100, y: 0, width: 30, height: 40, velocityX: 0, velocityY: 0, isJumping: false, isOnGround: true };
+let mumario = { x: 100, y: 0, width: 30, height: 40, velocityX: 0, velocityY: 0, isJumping: false, isOnGround: true, wasOnGround: false };
 let mumarioPlatforms = [];
 let mumarioCoins = [];
 let mumarioEnemies = [];
 let mumarioCameraX = 0;
-let mumarioLevelWidth = 4000;
 let mumarioParticles = [];
+let mumarioDistance = 0;
+let mumarioDifficulty = 1;
+let mumarioGroundY = 0;
+let mumarioNextPlatformX = 0;
+let mumarioLastJumpTime = 0;
+let mumarioSquash = 1;
 
 function startMumario() {
-    const groundY = elements.canvas.height - 80;
-    mumario.y = groundY - mumario.height;
+    // Play background music
+    const bgMusic = document.getElementById('bg-music');
+    if (bgMusic) {
+        bgMusic.volume = 0.3;
+        bgMusic.currentTime = 0;
+        bgMusic.play().catch(e => console.log('Audio autoplay blocked'));
+    }
+    
+    mumarioGroundY = elements.canvas.height - 80;
+    mumario.y = mumarioGroundY - mumario.height;
     mumario.x = 100;
     mumario.velocityX = 0;
     mumario.velocityY = 0;
     mumario.isJumping = false;
+    mumario.isOnGround = true;
+    mumario.wasOnGround = true;
     mumarioCameraX = 0;
     mumarioParticles = [];
+    mumarioDistance = 0;
+    mumarioDifficulty = 1;
+    mumarioSquash = 1;
     
-    // Create platforms with better design
+    // Initial platforms (starting area is safe)
     mumarioPlatforms = [
-        { x: 0, y: groundY, width: 600, height: 80, type: 'ground' },
-        { x: 700, y: groundY - 80, width: 150, height: 20, type: 'brick' },
-        { x: 950, y: groundY - 160, width: 120, height: 20, type: 'brick' },
-        { x: 1200, y: groundY - 80, width: 180, height: 20, type: 'brick' },
-        { x: 1500, y: groundY - 200, width: 150, height: 20, type: 'brick' },
-        { x: 1750, y: groundY - 120, width: 120, height: 20, type: 'brick' },
-        { x: 2000, y: groundY - 180, width: 200, height: 20, type: 'brick' },
-        { x: 2300, y: groundY - 100, width: 150, height: 20, type: 'brick' },
-        { x: 2550, y: groundY - 220, width: 180, height: 20, type: 'brick' },
-        { x: 2850, y: groundY - 140, width: 150, height: 20, type: 'brick' },
-        { x: 3100, y: groundY - 80, width: 200, height: 20, type: 'brick' },
-        { x: 3400, y: groundY - 160, width: 150, height: 20, type: 'brick' },
-        { x: 3650, y: groundY, width: 500, height: 80, type: 'ground' }
+        { x: -50, y: mumarioGroundY, width: 800, height: 80, type: 'ground', baseY: mumarioGroundY }
     ];
+    mumarioNextPlatformX = 750;
     
-    // Create more coins with better placement
-    mumarioCoins = [];
-    const coinPositions = [
-        { x: 750, y: groundY - 150 },
-        { x: 850, y: groundY - 150 },
-        { x: 1000, y: groundY - 230 },
-        { x: 1100, y: groundY - 150 },
-        { x: 1250, y: groundY - 150 },
-        { x: 1400, y: groundY - 80 },
-        { x: 1550, y: groundY - 270 },
-        { x: 1650, y: groundY - 200 },
-        { x: 1800, y: groundY - 250 },
-        { x: 1950, y: groundY - 180 },
-        { x: 2100, y: groundY - 250 },
-        { x: 2250, y: groundY - 170 },
-        { x: 2350, y: groundY - 170 },
-        { x: 2600, y: groundY - 290 },
-        { x: 2750, y: groundY - 210 },
-        { x: 2900, y: groundY - 150 },
-        { x: 3050, y: groundY - 150 },
-        { x: 3150, y: groundY - 150 },
-        { x: 3450, y: groundY - 230 },
-        { x: 3600, y: groundY - 80 }
-    ];
+    // Generate initial content
+    generateMumarioContent(2000);
     
-    coinPositions.forEach(pos => {
-        mumarioCoins.push({ x: pos.x, y: pos.y, collected: false, animOffset: Math.random() * Math.PI * 2 });
-    });
+    // Initial coins
+    generateMumarioCoins(2000);
     
-    // Create enemies
-    mumarioEnemies = [
-        { x: 800, y: groundY - 35, width: 30, height: 30, direction: 1, speed: 2, alive: true },
-        { x: 1300, y: groundY - 35, width: 30, height: 30, direction: 1, speed: 2.5, alive: true },
-        { x: 2100, y: groundY - 35, width: 30, height: 30, direction: -1, speed: 3, alive: true },
-        { x: 2600, y: groundY - 35, width: 30, height: 30, direction: 1, speed: 2, alive: true },
-        { x: 3200, y: groundY - 35, width: 30, height: 30, direction: -1, speed: 2.5, alive: true }
-    ];
+    // Initial enemies
+    generateMumarioEnemies(2000);
     
     gameState.score = 0;
     updateMumarioScore();
@@ -689,8 +679,134 @@ function startMumario() {
     gameState.gameLoop = requestAnimationFrame(updateMumario);
 }
 
+// Generate platforms procedurally
+function generateMumarioContent(generateAheadDistance) {
+    const generateUntil = mumarioCameraX + elements.canvas.width + generateAheadDistance;
+    
+    while (mumarioNextPlatformX < generateUntil) {
+        const gap = 100 + Math.random() * 150 * Math.min(mumarioDifficulty, 2);
+        const platWidth = 80 + Math.random() * 150;
+        const platHeight = 20;
+        
+        // Height variation based on difficulty
+        const maxHeight = Math.min(250, 100 + mumarioDifficulty * 30);
+        const platY = mumarioGroundY - (Math.random() * maxHeight);
+        
+        // Determine platform type based on difficulty
+        let platType = 'brick';
+        const rand = Math.random();
+        
+        if (mumarioDifficulty > 1.5 && rand < 0.15) {
+            platType = 'moving';
+        } else if (mumarioDifficulty > 1.2 && rand < 0.25) {
+            platType = 'small';
+        } else if (mumarioDifficulty > 2 && rand < 0.3) {
+            platType = 'disappearing';
+        }
+        
+        const platform = {
+            x: mumarioNextPlatformX,
+            y: platY,
+            width: platType === 'small' ? 60 + Math.random() * 30 : platWidth,
+            height: platHeight,
+            type: platType,
+            baseY: platY,
+            baseX: mumarioNextPlatformX,
+            moveOffset: Math.random() * Math.PI * 2,
+            moveSpeed: 0.02 + Math.random() * 0.02,
+            moveRange: platType === 'moving' ? (Math.random() > 0.5 ? 80 : 0) : 0,
+            moveDir: platType === 'moving' ? (Math.random() > 0.5 ? 1 : -1) : 0,
+            disappearing: false,
+            disappearTimer: 0,
+            fallVelocity: 0
+        };
+        
+        mumarioPlatforms.push(platform);
+        mumarioNextPlatformX += gap + platWidth;
+    }
+    
+    // Remove old platforms behind camera
+    mumarioPlatforms = mumarioPlatforms.filter(p => p.x + p.width > mumarioCameraX - 200);
+}
+
+// Generate coins
+function generateMumarioCoins(generateAheadDistance) {
+    const generateUntil = mumarioCameraX + elements.canvas.width + generateAheadDistance;
+    const lastCoin = mumarioCoins.length > 0 ? Math.max(...mumarioCoins.map(c => c.x)) : 0;
+    let coinX = Math.max(lastCoin + 200, 500);
+    
+    while (coinX < generateUntil) {
+        const coinY = mumarioGroundY - 80 - Math.random() * 200;
+        mumarioCoins.push({ 
+            x: coinX, 
+            y: coinY, 
+            collected: false, 
+            animOffset: Math.random() * Math.PI * 2 
+        });
+        
+        // Sometimes add coin patterns
+        if (Math.random() > 0.6) {
+            const pattern = Math.floor(Math.random() * 3) + 1;
+            for (let i = 1; i <= pattern; i++) {
+                if (Math.random() > 0.5) {
+                    mumarioCoins.push({ 
+                        x: coinX + i * 35, 
+                        y: coinY + (Math.random() > 0.5 ? 0 : -30), 
+                        collected: false, 
+                        animOffset: Math.random() * Math.PI * 2 
+                    });
+                }
+            }
+        }
+        
+        coinX += 200 + Math.random() * 300;
+    }
+    
+    // Remove old coins
+    mumarioCoins = mumarioCoins.filter(c => c.x > mumarioCameraX - 200);
+}
+
+// Generate enemies
+function generateMumarioEnemies(generateAheadDistance) {
+    const generateUntil = mumarioCameraX + elements.canvas.width + generateAheadDistance;
+    const lastEnemy = mumarioEnemies.length > 0 ? Math.max(...mumarioEnemies.map(e => e.x)) : 0;
+    let enemyX = Math.max(lastEnemy + 400, 600);
+    
+    // Enemy frequency increases with difficulty
+    const enemyGap = Math.max(300, 600 - mumarioDifficulty * 50);
+    
+    while (enemyX < generateUntil) {
+        const speed = 1.5 + Math.random() * 1.5 * Math.min(mumarioDifficulty / 2, 1.5);
+        mumarioEnemies.push({
+            x: enemyX,
+            y: mumarioGroundY - 35,
+            width: 30,
+            height: 30,
+            direction: Math.random() > 0.5 ? 1 : -1,
+            speed: speed,
+            alive: true
+        });
+        
+        enemyX += enemyGap + Math.random() * 200;
+    }
+    
+    // Remove old enemies
+    mumarioEnemies = mumarioEnemies.filter(e => e.x + e.width > mumarioCameraX - 200 || e.alive);
+}
+
 function updateMumario() {
     if (!gameState.isPlaying || gameState.currentGame !== 'mumario') return;
+    
+    // Store previous ground state for landing detection
+    mumario.wasOnGround = mumario.isOnGround;
+    
+    // Increase difficulty over time
+    mumarioDifficulty += 0.0005;
+    
+    // Generate new content as player progresses
+    generateMumarioContent(2000);
+    generateMumarioCoins(2000);
+    generateMumarioEnemies(2000);
     
     // Horizontal movement with acceleration
     if (window.mumarioKeys.left) {
@@ -703,44 +819,117 @@ function updateMumario() {
     
     mumario.x += mumario.velocityX;
     
-    // Camera follow with smooth lerp
+    // Camera follow - truly endless (no max width limit)
     const targetCameraX = mumario.x - elements.canvas.width / 3;
-    mumarioCameraX += (Math.max(0, Math.min(targetCameraX, mumarioLevelWidth - elements.canvas.width)) - mumarioCameraX) * 0.1;
+    mumarioCameraX += (Math.max(0, targetCameraX) - mumarioCameraX) * 0.1;
+    
+    // Track distance for scoring
+    const newDistance = Math.floor(mumario.x / 10);
+    if (newDistance > mumarioDistance) {
+        gameState.score += newDistance - mumarioDistance;
+        mumarioDistance = newDistance;
+        updateMumarioScore();
+    }
     
     // Gravity
     mumario.velocityY += 0.6;
     mumario.y += mumario.velocityY;
     
+    // Squash/stretch recovery
+    mumarioSquash += (1 - mumarioSquash) * 0.2;
+    
+    // Update platforms (moving and disappearing)
+    const time = Date.now();
+    mumarioPlatforms.forEach(plat => {
+        if (plat.type === 'moving') {
+            // Horizontal movement
+            if (plat.moveRange > 0) {
+                plat.x = plat.baseX + Math.sin(time * plat.moveSpeed + plat.moveOffset) * plat.moveRange;
+            }
+            // Vertical movement
+            plat.y = plat.baseY + Math.sin(time * plat.moveSpeed * 0.5 + plat.moveOffset) * 40;
+        }
+        
+        if (plat.type === 'disappearing' && plat.disappearing) {
+            plat.disappearTimer++;
+            if (plat.disappearTimer > 60) { // 1 second at 60fps
+                plat.fallVelocity += 0.5;
+                plat.y += plat.fallVelocity;
+            }
+        }
+    });
+    
     // Platform collision
     mumario.isOnGround = false;
+    let justLanded = false;
     mumarioPlatforms.forEach(plat => {
+        if (plat.y > elements.canvas.height + 100) return; // Skip fallen platforms
+        
         if (mumario.x + mumario.width > plat.x &&
             mumario.x < plat.x + plat.width &&
             mumario.y + mumario.height > plat.y &&
             mumario.y + mumario.height < plat.y + plat.height + 20 &&
             mumario.velocityY > 0) {
+            
+            // Landing detection
+            if (!mumario.wasOnGround && mumario.velocityY > 2) {
+                justLanded = true;
+                mumarioSquash = 1.3; // Squash on land
+            }
+            
             mumario.y = plat.y - mumario.height;
             mumario.velocityY = 0;
             mumario.isOnGround = true;
             mumario.isJumping = false;
+            
+            // Trigger disappearing platform
+            if (plat.type === 'disappearing' && !plat.disappearing) {
+                plat.disappearing = true;
+            }
         }
     });
     
     // Ground collision
-    const groundY = elements.canvas.height - 80;
-    if (mumario.y >= groundY - mumario.height) {
-        mumario.y = groundY - mumario.height;
+    if (mumario.y >= mumarioGroundY - mumario.height) {
+        if (!mumario.wasOnGround && mumario.velocityY > 2) {
+            justLanded = true;
+            mumarioSquash = 1.3;
+        }
+        mumario.y = mumarioGroundY - mumario.height;
         mumario.velocityY = 0;
         mumario.isOnGround = true;
         mumario.isJumping = false;
     }
     
-    // Wall boundaries
+    // Left boundary
     if (mumario.x < 0) mumario.x = 0;
-    if (mumario.x > mumarioLevelWidth - mumario.width) {
-        gameState.score += 1000;
-        gameOver();
-        return;
+    
+    // Jump effect particles
+    if (mumario.isJumping && mumario.velocityY < -5) {
+        for (let i = 0; i < 3; i++) {
+            mumarioParticles.push({
+                x: mumario.x + mumario.width / 2,
+                y: mumario.y + mumario.height,
+                vx: (Math.random() - 0.5) * 4,
+                vy: Math.random() * 2 + 1,
+                life: 0.5,
+                color: '#ffffff'
+            });
+        }
+    }
+    
+    // Landing dust effect
+    if (justLanded) {
+        for (let i = 0; i < 8; i++) {
+            mumarioParticles.push({
+                x: mumario.x + mumario.width / 2,
+                y: mumario.y + mumario.height,
+                vx: (Math.random() - 0.5) * 6,
+                vy: -Math.random() * 2 - 1,
+                life: 0.6,
+                color: '#d4a574'
+            });
+        }
     }
     
     // Coin collection with particle effect
@@ -786,10 +975,12 @@ function updateMumario() {
         const plat = mumarioPlatforms.find(p => 
             enemy.x + enemy.width > p.x && 
             enemy.x < p.x + p.width && 
-            Math.abs(enemy.y + enemy.height - p.y) < 10
+            Math.abs(enemy.y + enemy.height - p.y) < 10 &&
+            p.y < elements.canvas.height
         );
         
-        if (enemy.x <= 0 || enemy.x >= mumarioLevelWidth - enemy.width || plat) {
+        // Bounce off screen edges
+        if (enemy.x <= 0 || enemy.x >= mumarioCameraX + elements.canvas.width - enemy.width || plat) {
             enemy.direction *= -1;
         }
         
@@ -803,7 +994,8 @@ function updateMumario() {
                 enemy.alive = false;
                 gameState.score += 100;
                 updateMumarioScore();
-                mumario.velocityY = -12;
+                mumario.velocityY = -10;
+                mumarioSquash = 0.7; // Stretch when bouncing
                 // Enemy death particles
                 for (let i = 0; i < 10; i++) {
                     mumarioParticles.push({
@@ -822,7 +1014,7 @@ function updateMumario() {
         }
     });
     
-    // Fall off screen
+    // Fall off screen - game over
     if (mumario.y > elements.canvas.height) {
         gameOver();
         return;
@@ -857,16 +1049,62 @@ function drawMumario() {
     ctx.save();
     ctx.translate(-mumarioCameraX, 0);
     
-    // Platforms with better visuals
+// Platforms with better visuals and variety
     mumarioPlatforms.forEach(plat => {
+        if (plat.y > elements.canvas.height + 100) return; // Skip fallen platforms
+        
         if (plat.type === 'ground') {
             // Ground with grass
             ctx.fillStyle = '#2d5a27';
             ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
             ctx.fillStyle = '#4a9f3d';
             ctx.fillRect(plat.x, plat.y, plat.width, 8);
+        } else if (plat.type === 'moving') {
+            // Moving platforms - metallic/silver
+            ctx.fillStyle = '#708090';
+            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+            ctx.fillStyle = '#A9A9A9';
+            ctx.fillRect(plat.x + 2, plat.y + 2, plat.width - 4, 4);
+            // Metallic shine
+            ctx.fillStyle = '#C0C0C0';
+            ctx.fillRect(plat.x + 5, plat.y + 6, plat.width - 10, 3);
+            // Arrow indicators
+            ctx.fillStyle = '#4169E1';
+            ctx.beginPath();
+            ctx.moveTo(plat.x + plat.width/2 - 8, plat.y + 10);
+            ctx.lineTo(plat.x + plat.width/2 + 8, plat.y + 10);
+            ctx.lineTo(plat.x + plat.width/2, plat.y + 16);
+            ctx.fill();
+        } else if (plat.type === 'small') {
+            // Small floating platforms - wood/brown
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+            ctx.fillStyle = '#D2691E';
+            ctx.fillRect(plat.x, plat.y, plat.width, 4);
+            // Wood grain
+            ctx.strokeStyle = '#654321';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(plat.x + 10, plat.y + 6);
+            ctx.lineTo(plat.x + plat.width - 10, plat.y + 6);
+            ctx.stroke();
+        } else if (plat.type === 'disappearing') {
+            // Disappearing platforms - warning red/orange
+            if (plat.disappearing && plat.disappearTimer > 30) {
+                // Flashing effect
+                ctx.fillStyle = Math.floor(plat.disappearTimer / 5) % 2 === 0 ? '#FF4500' : '#FF6347';
+            } else {
+                ctx.fillStyle = '#CD5C5C';
+            }
+            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+            // Warning pattern
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(plat.x + 2, plat.y + 2, 6, 6);
+            ctx.fillRect(plat.x + plat.width - 8, plat.y + 2, 6, 6);
+            ctx.fillRect(plat.x + 2, plat.y + plat.height - 8, 6, 6);
+            ctx.fillRect(plat.x + plat.width - 8, plat.y + plat.height - 8, 6, 6);
         } else {
-            // Brick platforms
+            // Normal brick platforms
             ctx.fillStyle = '#8B4513';
             ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
             ctx.fillStyle = '#A0522D';
