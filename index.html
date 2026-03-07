@@ -58,6 +58,64 @@
                 font-size: 10px;
             }
         }
+        
+        /* Mobile Controls */
+        .mobile-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: none;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 100;
+            pointer-events: none;
+        }
+        
+        .mobile-controls.active {
+            display: flex;
+        }
+        
+        .dpad {
+            display: flex;
+            gap: 10px;
+            pointer-events: auto;
+        }
+        
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.5);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+        
+        .control-btn:active, .control-btn.pressed {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.8);
+            transform: scale(0.95);
+        }
+        
+        .jump-btn {
+            width: 80px;
+            height: 80px;
+            font-size: 14px;
+            background: rgba(255,0,0,0.5);
+            border-color: rgba(255,100,100,0.7);
+        }
+        
+        .jump-btn:active, .jump-btn.pressed {
+            background: rgba(255,100,100,0.7);
+        }
     </style>
 </head>
 <body>
@@ -146,6 +204,14 @@
             <div class="score-display hidden" id="score-display">Score: 0</div>
             <div class="game-info hidden" id="game-info"></div>
         </div>
+        <!-- Mobile Controls -->
+        <div class="mobile-controls" id="mobile-controls">
+            <div class="dpad">
+                <button class="control-btn" id="btn-left">◀</button>
+                <button class="control-btn" id="btn-right">▶</button>
+            </div>
+            <button class="control-btn jump-btn" id="btn-jump">JUMP</button>
+        </div>
     </div>
 
     <!-- Game Over Screen -->
@@ -221,6 +287,89 @@
                 window.scrollTo(0, 0);
             }, 100);
         });
-    </script>
-</body>
-</html>
+        
+        // Mobile Controls Setup
+        function setupMobileControls() {
+            const mobileControls = document.getElementById('mobile-controls');
+            const btnLeft = document.getElementById('btn-left');
+            const btnRight = document.getElementById('btn-right');
+            const btnJump = document.getElementById('btn-jump');
+            
+            // Check if mobile device
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+            
+            if (isMobile) {
+                mobileControls.classList.add('active');
+            }
+            
+            // Left button
+            btnLeft.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                btnLeft.classList.add('pressed');
+                window.mumarioKeys.left = true;
+            });
+            
+            btnLeft.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                btnLeft.classList.remove('pressed');
+                window.mumarioKeys.left = false;
+            });
+            
+            // Right button
+            btnRight.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                btnRight.classList.add('pressed');
+                window.mumarioKeys.right = true;
+            });
+            
+            btnRight.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                btnRight.classList.remove('pressed');
+                window.mumarioKeys.right = false;
+            });
+            
+            // Jump button
+            btnJump.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                btnJump.classList.add('pressed');
+                if (gameState.currentGame === 'mumario') {
+                    mumarioJump();
+                } else if (gameState.currentGame === 'flappybird') {
+                    flappyFlap();
+                } else if (gameState.currentGame === 'dino') {
+                    dinoJump();
+                }
+            });
+            
+            btnJump.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                btnJump.classList.remove('pressed');
+            });
+            
+            // Mouse events for testing on desktop
+            btnLeft.addEventListener('mousedown', function() {
+                window.mumarioKeys.left = true;
+            });
+            btnLeft.addEventListener('mouseup', function() {
+                window.mumarioKeys.left = false;
+            });
+            btnLeft.addEventListener('mouseleave', function() {
+                window.mumarioKeys.left = false;
+            });
+            
+            btnRight.addEventListener('mousedown', function() {
+                window.mumarioKeys.right = true;
+            });
+            btnRight.addEventListener('mouseup', function() {
+                window.mumarioKeys.right = false;
+            });
+            btnRight.addEventListener('mouseleave', function() {
+                window.mumarioKeys.right = false;
+            });
+            

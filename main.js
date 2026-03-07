@@ -145,6 +145,17 @@ function showScreen(screenName) {
     screens[screenName].classList.remove('hidden');
     screens[screenName].classList.add('screen-enter');
     
+    // Activate mobile controls when game screen is shown
+    if (screenName === 'game') {
+        const mobileControls = document.getElementById('mobile-controls');
+        if (mobileControls) {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+            if (isMobile) {
+                mobileControls.classList.add('active');
+            }
+        }
+    }
+    
     setTimeout(() => {
         screens[screenName].classList.remove('screen-enter');
     }, 500);
