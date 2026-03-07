@@ -478,17 +478,37 @@ html, body {
 }
 
 /* ==================== LANDSCAPE ORIENTATION ==================== */
-@media (orientation: portrait) {
-    #orientation-warning {
-        display: flex !important;
+/* Force landscape on mobile - improved approach */
+@media screen and (orientation: portrait) {
+    /* On portrait, rotate the visual content but keep the layout working */
+    html, body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        transform: rotate(90deg);
+        transform-origin: center center;
+        position: fixed;
     }
-
-    .screen:not(#orientation-warning) {
+    
+    /* Hide the orientation warning since we're handling it */
+    #orientation-warning {
         display: none !important;
+    }
+    
+    .screen {
+        width: 100vw;
+        height: 100vh;
     }
 }
 
+/* When in landscape, ensure full screen */
 @media (orientation: landscape) {
+    html, body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+    }
+    
     #orientation-warning {
         display: none !important;
     }

@@ -462,3 +462,29 @@
                 window.mumarioKeys.right = false;
             });
             
+            btnJump.addEventListener('mousedown', function() {
+                btnJump.classList.add('pressed');
+                if (gameState.currentGame === 'mumario') {
+                    mumarioJump();
+                } else if (gameState.currentGame === 'flappybird') {
+                    flappyFlap();
+                } else if (gameState.currentGame === 'dino') {
+                    dinoJump();
+                }
+            });
+            
+            btnJump.addEventListener('mouseup', function() {
+                btnJump.classList.remove('pressed');
+            });
+            
+            btnJump.addEventListener('mouseleave', function() {
+                btnJump.classList.remove('pressed');
+            });
+        }
+        
+        // Initialize on load
+        setupMobileControls();
+    </script>
+</body>
+</html>
+            

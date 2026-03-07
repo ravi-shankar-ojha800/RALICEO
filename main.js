@@ -1,5 +1,8 @@
 // ==================== RALICEO - Mobile Game Hub ====================
 
+// Check if mobile device
+const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+
 // Joystick State
 const joystickState = {
     active: false,
@@ -58,6 +61,12 @@ function init() {
     checkOrientation();
     showScreen('loading');
     
+    // Request fullscreen and lock orientation on mobile
+    if (isMobileDevice) {
+        requestFullscreen();
+        lockOrientation();
+    }
+    
     // Create ambient particles for screens
     createAmbientParticles('home-particles');
     createAmbientParticles('menu-particles');
@@ -66,6 +75,37 @@ function init() {
     setTimeout(() => {
         showScreen('home');
     }, 2500);
+}
+
+// Request fullscreen on mobile
+function requestFullscreen() {
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen().catch(() => {});
+    } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+    }
+}
+
+// Lock orientation to landscape
+function lockOrientation() {
+    // Try different methods to lock orientation
+    if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape')
+            .then(() => console.log('Orientation locked to landscape'))
+            .catch(() => {
+                // Fallback: try to force landscape via CSS
+                console.log('Orientation lock failed, using fallback');
+            });
+    } else if (screen.lockOrientation) {
+        screen.lockOrientation('landscape');
+    } else if (screen.mozLockOrientation) {
+        screen.mozLockOrientation('landscape');
+    } else if (screen.msLockOrientation) {
+        screen.msLockOrientation('landscape');
+    }
 }
 
 function setupCanvas() {
