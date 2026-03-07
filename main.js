@@ -79,7 +79,22 @@ function setupEventListeners() {
 
     elements.continueBtn.addEventListener('click', () => {
         const name = elements.playerNameInput.value.trim();
-        gameState.playerName = name || 'Player';
+        
+        // Remove any existing error class
+        elements.playerNameInput.classList.remove('error');
+        
+        // Validate name is not empty
+        if (!name) {
+            elements.playerNameInput.classList.add('error');
+            elements.playerNameInput.focus();
+            // Remove error class after animation
+            setTimeout(() => {
+                elements.playerNameInput.classList.remove('error');
+            }, 500);
+            return;
+        }
+        
+        gameState.playerName = name;
         elements.displayName.textContent = gameState.playerName;
         createParticles(event);
         playClickSound();
@@ -223,20 +238,11 @@ function startCurrentGame() {
     elements.gameInfo.classList.add('hidden');
     
     switch (gameState.currentGame) {
-        case 'chess':
-            startChess();
-            break;
-        case 'dino':
-            startDino();
-            break;
         case 'mumario':
             startMumario();
             break;
         case 'flappybird':
             startFlappyBird();
-            break;
-        case 'snake':
-            startSnake();
             break;
     }
 }
@@ -589,14 +595,15 @@ function updateDinoScore() {
     elements.scoreDisplay.textContent = `Score: ${dinoScore}`;
 }
 
-// ==================== GAME 3: MUMARIO ====================
+// ==================== GAME 3: MUMARIO (IMPROVED) ====================
 
 let mumario = { x: 100, y: 0, width: 30, height: 40, velocityX: 0, velocityY: 0, isJumping: false, isOnGround: true };
 let mumarioPlatforms = [];
 let mumarioCoins = [];
 let mumarioEnemies = [];
 let mumarioCameraX = 0;
-let mumarioLevelWidth = 3000;
+let mumarioLevelWidth = 4000;
+let mumarioParticles = [];
 
 function startMumario() {
     const groundY = elements.canvas.height - 80;
@@ -606,34 +613,61 @@ function startMumario() {
     mumario.velocityY = 0;
     mumario.isJumping = false;
     mumarioCameraX = 0;
+    mumarioParticles = [];
     
-    // Create platforms
+    // Create platforms with better design
     mumarioPlatforms = [
-        { x: 0, y: groundY, width: 500, height: 80 },
-        { x: 600, y: groundY - 100, width: 200, height: 20 },
-        { x: 900, y: groundY - 200, width: 150, height: 20 },
-        { x: 1200, y: groundY - 100, width: 200, height: 20 },
-        { x: 1500, y: groundY - 150, width: 150, height: 20 },
-        { x: 1800, y: groundY - 250, width: 200, height: 20 },
-        { x: 2100, y: groundY - 100, width: 300, height: 20 },
-        { x: 2500, y: groundY, width: 600, height: 80 }
+        { x: 0, y: groundY, width: 600, height: 80, type: 'ground' },
+        { x: 700, y: groundY - 80, width: 150, height: 20, type: 'brick' },
+        { x: 950, y: groundY - 160, width: 120, height: 20, type: 'brick' },
+        { x: 1200, y: groundY - 80, width: 180, height: 20, type: 'brick' },
+        { x: 1500, y: groundY - 200, width: 150, height: 20, type: 'brick' },
+        { x: 1750, y: groundY - 120, width: 120, height: 20, type: 'brick' },
+        { x: 2000, y: groundY - 180, width: 200, height: 20, type: 'brick' },
+        { x: 2300, y: groundY - 100, width: 150, height: 20, type: 'brick' },
+        { x: 2550, y: groundY - 220, width: 180, height: 20, type: 'brick' },
+        { x: 2850, y: groundY - 140, width: 150, height: 20, type: 'brick' },
+        { x: 3100, y: groundY - 80, width: 200, height: 20, type: 'brick' },
+        { x: 3400, y: groundY - 160, width: 150, height: 20, type: 'brick' },
+        { x: 3650, y: groundY, width: 500, height: 80, type: 'ground' }
     ];
     
-    // Create coins
+    // Create more coins with better placement
     mumarioCoins = [];
-    for (let i = 0; i < 15; i++) {
-        mumarioCoins.push({
-            x: 300 + i * 180 + Math.random() * 50,
-            y: groundY - 100 - Math.random() * 150,
-            collected: false
-        });
-    }
+    const coinPositions = [
+        { x: 750, y: groundY - 150 },
+        { x: 850, y: groundY - 150 },
+        { x: 1000, y: groundY - 230 },
+        { x: 1100, y: groundY - 150 },
+        { x: 1250, y: groundY - 150 },
+        { x: 1400, y: groundY - 80 },
+        { x: 1550, y: groundY - 270 },
+        { x: 1650, y: groundY - 200 },
+        { x: 1800, y: groundY - 250 },
+        { x: 1950, y: groundY - 180 },
+        { x: 2100, y: groundY - 250 },
+        { x: 2250, y: groundY - 170 },
+        { x: 2350, y: groundY - 170 },
+        { x: 2600, y: groundY - 290 },
+        { x: 2750, y: groundY - 210 },
+        { x: 2900, y: groundY - 150 },
+        { x: 3050, y: groundY - 150 },
+        { x: 3150, y: groundY - 150 },
+        { x: 3450, y: groundY - 230 },
+        { x: 3600, y: groundY - 80 }
+    ];
+    
+    coinPositions.forEach(pos => {
+        mumarioCoins.push({ x: pos.x, y: pos.y, collected: false, animOffset: Math.random() * Math.PI * 2 });
+    });
     
     // Create enemies
     mumarioEnemies = [
-        { x: 700, y: groundY - 30, width: 30, height: 30, direction: 1, speed: 2 },
-        { x: 1300, y: groundY - 30, width: 30, height: 30, direction: 1, speed: 3 },
-        { x: 2200, y: groundY - 30, width: 30, height: 30, direction: -1, speed: 2 }
+        { x: 800, y: groundY - 35, width: 30, height: 30, direction: 1, speed: 2, alive: true },
+        { x: 1300, y: groundY - 35, width: 30, height: 30, direction: 1, speed: 2.5, alive: true },
+        { x: 2100, y: groundY - 35, width: 30, height: 30, direction: -1, speed: 3, alive: true },
+        { x: 2600, y: groundY - 35, width: 30, height: 30, direction: 1, speed: 2, alive: true },
+        { x: 3200, y: groundY - 35, width: 30, height: 30, direction: -1, speed: 2.5, alive: true }
     ];
     
     gameState.score = 0;
@@ -658,23 +692,23 @@ function startMumario() {
 function updateMumario() {
     if (!gameState.isPlaying || gameState.currentGame !== 'mumario') return;
     
-    // Horizontal movement
+    // Horizontal movement with acceleration
     if (window.mumarioKeys.left) {
-        mumario.velocityX = -5;
+        mumario.velocityX = Math.max(mumario.velocityX - 0.5, -6);
     } else if (window.mumarioKeys.right) {
-        mumario.velocityX = 5;
+        mumario.velocityX = Math.min(mumario.velocityX + 0.5, 6);
     } else {
-        mumario.velocityX *= 0.8;
+        mumario.velocityX *= 0.85;
     }
     
     mumario.x += mumario.velocityX;
     
-    // Camera follow
+    // Camera follow with smooth lerp
     const targetCameraX = mumario.x - elements.canvas.width / 3;
-    mumarioCameraX = Math.max(0, Math.min(targetCameraX, mumarioLevelWidth - elements.canvas.width));
+    mumarioCameraX += (Math.max(0, Math.min(targetCameraX, mumarioLevelWidth - elements.canvas.width)) - mumarioCameraX) * 0.1;
     
     // Gravity
-    mumario.velocityY += 0.5;
+    mumario.velocityY += 0.6;
     mumario.y += mumario.velocityY;
     
     // Platform collision
@@ -704,13 +738,12 @@ function updateMumario() {
     // Wall boundaries
     if (mumario.x < 0) mumario.x = 0;
     if (mumario.x > mumarioLevelWidth - mumario.width) {
-        // Level complete!
-        gameState.score += 500;
+        gameState.score += 1000;
         gameOver();
         return;
     }
     
-    // Coin collection
+    // Coin collection with particle effect
     mumarioCoins.forEach(coin => {
         if (!coin.collected &&
             mumario.x < coin.x + 20 &&
@@ -718,13 +751,35 @@ function updateMumario() {
             mumario.y < coin.y + 20 &&
             mumario.y + mumario.height > coin.y) {
             coin.collected = true;
-            gameState.score += 10;
+            gameState.score += 25;
             updateMumarioScore();
+            // Create particles
+            for (let i = 0; i < 8; i++) {
+                mumarioParticles.push({
+                    x: coin.x + 10,
+                    y: coin.y + 10,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8 - 3,
+                    life: 1,
+                    color: '#FFD700'
+                });
+            }
         }
+    });
+    
+    // Update particles
+    mumarioParticles = mumarioParticles.filter(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.3;
+        p.life -= 0.03;
+        return p.life > 0;
     });
     
     // Enemy movement and collision
     mumarioEnemies.forEach(enemy => {
+        if (!enemy.alive) return;
+        
         enemy.x += enemy.speed * enemy.direction;
         
         // Bounce off platforms
@@ -743,13 +798,23 @@ function updateMumario() {
             mumario.x + mumario.width > enemy.x &&
             mumario.y < enemy.y + enemy.height &&
             mumario.y + mumario.height > enemy.y) {
-            // Mario dies if falling from above, otherwise jumps on head
             if (mumario.velocityY > 0 && mumario.y + mumario.height < enemy.y + enemy.height / 2) {
                 // Kill enemy
-                enemy.y = -1000;
-                gameState.score += 50;
+                enemy.alive = false;
+                gameState.score += 100;
                 updateMumarioScore();
-                mumario.velocityY = -10; // Bounce
+                mumario.velocityY = -12;
+                // Enemy death particles
+                for (let i = 0; i < 10; i++) {
+                    mumarioParticles.push({
+                        x: enemy.x + enemy.width / 2,
+                        y: enemy.y + enemy.height / 2,
+                        vx: (Math.random() - 0.5) * 10,
+                        vy: (Math.random() - 0.5) * 10,
+                        life: 1,
+                        color: '#ff3131'
+                    });
+                }
             } else {
                 gameOver();
                 return;
@@ -768,73 +833,152 @@ function updateMumario() {
 }
 
 function drawMumario() {
-    ctx.fillStyle = '#1a1a2e';
+    // Sky gradient background
+    const gradient = ctx.createLinearGradient(0, 0, 0, elements.canvas.height);
+    gradient.addColorStop(0, '#1a1a4e');
+    gradient.addColorStop(0.5, '#2d2d6e');
+    gradient.addColorStop(1, '#1a1a3e');
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, elements.canvas.width, elements.canvas.height);
+    
+    // Draw stars
+    ctx.fillStyle = '#ffffff';
+    for (let i = 0; i < 50; i++) {
+        const starX = (i * 137 + mumarioCameraX * 0.1) % elements.canvas.width;
+        const starY = (i * 89) % (elements.canvas.height - 100);
+        const size = (i % 3) + 1;
+        ctx.globalAlpha = 0.3 + (i % 5) * 0.1;
+        ctx.beginPath();
+        ctx.arc(starX, starY, size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.globalAlpha = 1;
     
     ctx.save();
     ctx.translate(-mumarioCameraX, 0);
     
-    // Platforms
-    ctx.fillStyle = '#8B4513';
+    // Platforms with better visuals
     mumarioPlatforms.forEach(plat => {
-        ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
-        // Grass on top
-        ctx.fillStyle = '#39ff14';
-        ctx.fillRect(plat.x, plat.y, plat.width, 5);
-        ctx.fillStyle = '#8B4513';
+        if (plat.type === 'ground') {
+            // Ground with grass
+            ctx.fillStyle = '#2d5a27';
+            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+            ctx.fillStyle = '#4a9f3d';
+            ctx.fillRect(plat.x, plat.y, plat.width, 8);
+        } else {
+            // Brick platforms
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+            ctx.fillStyle = '#A0522D';
+            ctx.fillRect(plat.x + 2, plat.y + 2, plat.width - 4, 4);
+            // Brick pattern
+            ctx.strokeStyle = '#5D3A1A';
+            ctx.lineWidth = 1;
+            for (let bx = plat.x + 20; bx < plat.x + plat.width - 10; bx += 30) {
+                ctx.beginPath();
+                ctx.moveTo(bx, plat.y);
+                ctx.lineTo(bx, plat.y + plat.height);
+                ctx.stroke();
+            }
+        }
     });
     
-    // Coins
-    ctx.fillStyle = '#FFD700';
+    // Coins with animation
+    const time = Date.now() / 200;
     mumarioCoins.forEach(coin => {
         if (!coin.collected) {
+            const bobY = Math.sin(time + coin.animOffset) * 5;
+            ctx.fillStyle = '#FFD700';
             ctx.beginPath();
-            ctx.arc(coin.x + 10, coin.y + 10, 10, 0, Math.PI * 2);
+            ctx.arc(coin.x + 10, coin.y + 10 + bobY, 10, 0, Math.PI * 2);
             ctx.fill();
-            ctx.strokeStyle = '#FFA500';
+            // Shine
+            ctx.fillStyle = '#FFEC8B';
+            ctx.beginPath();
+            ctx.arc(coin.x + 7, coin.y + 7 + bobY, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#DAA520';
             ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(coin.x + 10, coin.y + 10 + bobY, 10, 0, Math.PI * 2);
             ctx.stroke();
         }
     });
     
-    // Enemies
-    ctx.fillStyle = '#ff3131';
+    // Enemies (Goomba-style)
     mumarioEnemies.forEach(enemy => {
-        if (enemy.y > -100) {
-            ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+        if (enemy.alive && enemy.y > -100) {
+            // Body
+            ctx.fillStyle = '#8B4513';
+            ctx.beginPath();
+            ctx.ellipse(enemy.x + enemy.width/2, enemy.y + enemy.height/2 + 5, enemy.width/2 + 3, enemy.height/2 - 2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#A0522D';
+            ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height - 5);
             // Eyes
             ctx.fillStyle = '#fff';
-            ctx.fillRect(enemy.x + 5, enemy.y + 5, 8, 8);
-            ctx.fillRect(enemy.x + 18, enemy.y + 5, 8, 8);
+            ctx.fillRect(enemy.x + 4, enemy.y + 5, 8, 10);
+            ctx.fillRect(enemy.x + 18, enemy.y + 5, 8, 10);
             ctx.fillStyle = '#000';
-            ctx.fillRect(enemy.x + 7, enemy.y + 7, 4, 4);
-            ctx.fillRect(enemy.x + 20, enemy.y + 7, 4, 4);
-            ctx.fillStyle = '#ff3131';
+            ctx.fillRect(enemy.x + 6, enemy.y + 8, 4, 5);
+            ctx.fillRect(enemy.x + 20, enemy.y + 8, 4, 5);
+            // Feet animation
+            const footOffset = Math.sin(Date.now() / 100) * 3;
+            ctx.fillStyle = '#5D3A1A';
+            ctx.fillRect(enemy.x + 2 + footOffset, enemy.y + enemy.height - 5, 8, 6);
+            ctx.fillRect(enemy.x + 20 - footOffset, enemy.y + enemy.height - 5, 8, 6);
         }
     });
     
-    // Player (Mario-style)
+    // Player (Improved Mario-style)
+    // Body
     ctx.fillStyle = '#ff0000';
-    ctx.fillRect(mumario.x, mumario.y, mumario.width, mumario.height);
+    ctx.fillRect(mumario.x + 2, mumario.y + 12, 26, 22);
     // Hat
-    ctx.fillStyle = '#ff3131';
-    ctx.fillRect(mumario.x - 5, mumario.y, mumario.width + 10, 10);
+    ctx.fillStyle = '#cc0000';
+    ctx.fillRect(mumario.x - 3, mumario.y, mumario.width + 6, 14);
     // Face
     ctx.fillStyle = '#FFDAB9';
-    ctx.fillRect(mumario.x + 5, mumario.y + 5, 20, 15);
+    ctx.fillRect(mumario.x + 8, mumario.y + 10, 18, 12);
     // Eye
     ctx.fillStyle = '#000';
-    ctx.fillRect(mumario.x + 18, mumario.y + 8, 5, 5);
+    ctx.fillRect(mumario.x + 20, mumario.y + 12, 5, 5);
+    // Mustache
+    ctx.fillStyle = '#4a3020';
+    ctx.fillRect(mumario.x + 18, mumario.y + 20, 10, 3);
+    // Overalls
+    ctx.fillStyle = '#0066cc';
+    ctx.fillRect(mumario.x + 4, mumario.y + 20, 22, 14);
+    ctx.fillStyle = '#0055aa';
+    ctx.fillRect(mumario.x + 2, mumario.y + 22, 6, 12);
+    ctx.fillRect(mumario.x + 22, mumario.y + 22, 6, 12);
+    // Shoes
+    ctx.fillStyle = '#4a3020';
+    ctx.fillRect(mumario.x - 2, mumario.y + 34, 12, 8);
+    ctx.fillRect(mumario.x + 20, mumario.y + 34, 12, 8);
+    
+    // Particles
+    mumarioParticles.forEach(p => {
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1;
     
     ctx.restore();
     
-    // Ground line
+    // Ground line with glow
+    ctx.shadowColor = '#39ff14';
+    ctx.shadowBlur = 10;
     ctx.strokeStyle = '#39ff14';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.moveTo(0, elements.canvas.height - 80);
     ctx.lineTo(elements.canvas.width, elements.canvas.height - 80);
     ctx.stroke();
+    ctx.shadowBlur = 0;
 }
 
 function mumarioJump() {
@@ -855,13 +999,16 @@ function updateMumarioScore() {
     elements.scoreDisplay.textContent = `Score: ${gameState.score}`;
 }
 
-// ==================== GAME 4: FLAPPY BIRD ====================
+// ==================== GAME 4: FLAPPY BIRD (IMPROVED) ====================
 
-let flappyBird = { x: 0, y: 0, velocity: 0, radius: 15 };
+let flappyBird = { x: 0, y: 0, velocity: 0, radius: 18 };
 let flappyPipes = [];
 let flappyPassedPipes = 0;
 let flappySpeed = 3;
 let flappyGravity = 0.25;
+let flappyParticles = [];
+let flappyClouds = [];
+let flappyBonusRings = [];
 
 function startFlappyBird() {
     flappyBird.x = elements.canvas.width / 3;
@@ -870,8 +1017,21 @@ function startFlappyBird() {
     flappyPipes = [];
     flappyPassedPipes = 0;
     flappySpeed = 3;
-    gameState.score = 0;
+    flappyParticles = [];
+    flappyBonusRings = [];
     
+    // Create clouds
+    flappyClouds = [];
+    for (let i = 0; i < 8; i++) {
+        flappyClouds.push({
+            x: Math.random() * elements.canvas.width * 2,
+            y: 30 + Math.random() * 150,
+            width: 60 + Math.random() * 40,
+            speed: 0.5 + Math.random() * 0.5
+        });
+    }
+    
+    gameState.score = 0;
     updateFlappyScore();
     gameState.gameLoop = requestAnimationFrame(updateFlappyBird);
 }
@@ -883,16 +1043,29 @@ function updateFlappyBird() {
     flappyBird.velocity += flappyGravity;
     flappyBird.y += flappyBird.velocity;
     
+    // Update clouds
+    flappyClouds.forEach(cloud => {
+        cloud.x -= cloud.speed;
+        if (cloud.x + cloud.width < 0) {
+            cloud.x = elements.canvas.width + Math.random() * 200;
+            cloud.y = 30 + Math.random() * 150;
+        }
+    });
+    
     // Spawn pipes
-    if (flappyPipes.length === 0 || elements.canvas.width - flappyPipes[flappyPipes.length - 1].x > 250) {
-        const gap = 150;
-        const pipeHeight = 100 + Math.random() * (elements.canvas.height - 300);
+    if (flappyPipes.length === 0 || elements.canvas.width - flappyPipes[flappyPipes.length - 1].x > 220) {
+        const gap = 130 + Math.random() * 30;
+        const minHeight = 80;
+        const maxHeight = elements.canvas.height - 150 - gap;
+        const pipeHeight = minHeight + Math.random() * (maxHeight - minHeight);
         
         flappyPipes.push({
             x: elements.canvas.width,
             topHeight: pipeHeight,
             bottomY: pipeHeight + gap,
-            passed: false
+            passed: false,
+            hasBonus: Math.random() > 0.7,
+            bonusCollected: false
         });
     }
     
@@ -904,15 +1077,15 @@ function updateFlappyBird() {
         if (!flappyPipes[i].passed && flappyPipes[i].x + 60 < flappyBird.x) {
             flappyPipes[i].passed = true;
             flappyPassedPipes++;
-            gameState.score = flappyPassedPipes;
+            gameState.score += 1;
             updateFlappyScore();
             
             if (flappyPassedPipes % 5 === 0) {
-                flappySpeed += 0.3;
+                flappySpeed += 0.2;
             }
         }
         
-        // Collision detection
+        // Collision detection with pipes
         const pipe = flappyPipes[i];
         if (flappyBird.x + flappyBird.radius > pipe.x &&
             flappyBird.x - flappyBird.radius < pipe.x + 60) {
@@ -923,11 +1096,42 @@ function updateFlappyBird() {
             }
         }
         
+        // Bonus ring collision
+        if (pipe.hasBonus && !pipe.bonusCollected) {
+            const ringX = pipe.x + 30;
+            const ringY = (pipe.topHeight + pipe.bottomY) / 2;
+            const dist = Math.sqrt(Math.pow(flappyBird.x - ringX, 2) + Math.pow(flappyBird.y - ringY, 2));
+            if (dist < flappyBird.radius + 15) {
+                pipe.bonusCollected = true;
+                gameState.score += 3;
+                updateFlappyScore();
+                // Create bonus particles
+                for (let j = 0; j < 12; j++) {
+                    flappyParticles.push({
+                        x: ringX,
+                        y: ringY,
+                        vx: (Math.random() - 0.5) * 8,
+                        vy: (Math.random() - 0.5) * 8,
+                        life: 1,
+                        color: '#00ffff'
+                    });
+                }
+            }
+        }
+        
         // Remove off-screen pipes
         if (pipe.x < -70) {
             flappyPipes.splice(i, 1);
         }
     }
+    
+    // Update particles
+    flappyParticles = flappyParticles.filter(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 0.03;
+        return p.life > 0;
+    });
     
     // Ground/ceiling collision
     if (flappyBird.y + flappyBird.radius > elements.canvas.height - 50 ||
@@ -941,59 +1145,150 @@ function updateFlappyBird() {
 }
 
 function drawFlappyBird() {
-    ctx.fillStyle = '#70c5ce';
+    // Sky gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, elements.canvas.height);
+    gradient.addColorStop(0, '#87CEEB');
+    gradient.addColorStop(0.5, '#E0F6FF');
+    gradient.addColorStop(1, '#87CEEB');
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, elements.canvas.width, elements.canvas.height);
     
-    // Ground
-    ctx.fillStyle = '#ded895';
-    ctx.fillRect(0, elements.canvas.height - 50, elements.canvas.width, 50);
-    ctx.fillStyle = '#73bf2e';
-    ctx.fillRect(0, elements.canvas.height - 50, elements.canvas.width, 10);
-    
-    // Pipes
-    ctx.fillStyle = '#73bf2e';
-    flappyPipes.forEach(pipe => {
-        // Top pipe
-        ctx.fillRect(pipe.x, 0, 60, pipe.topHeight);
-        ctx.fillStyle = '#558c22';
-        ctx.fillRect(pipe.x + 5, 0, 50, pipe.topHeight - 10);
-        ctx.fillStyle = '#73bf2e';
-        
-        // Bottom pipe
-        ctx.fillRect(pipe.x, pipe.bottomY, 60, elements.canvas.height - pipe.bottomY - 50);
-        ctx.fillStyle = '#558c22';
-        ctx.fillRect(pipe.x + 5, pipe.bottomY + 10, 50, elements.canvas.height - pipe.bottomY - 60);
-        ctx.fillStyle = '#73bf2e';
+    // Draw clouds
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    flappyClouds.forEach(cloud => {
+        ctx.beginPath();
+        ctx.ellipse(cloud.x, cloud.y, cloud.width / 2, cloud.width / 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(cloud.x - cloud.width / 4, cloud.y + 10, cloud.width / 3, cloud.width / 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(cloud.x + cloud.width / 4, cloud.y + 5, cloud.width / 3, cloud.width / 5, 0, 0, Math.PI * 2);
+        ctx.fill();
     });
     
-    // Bird
+    // Draw distant hills
+    ctx.fillStyle = '#7CB342';
+    ctx.beginPath();
+    ctx.moveTo(0, elements.canvas.height - 50);
+    for (let x = 0; x <= elements.canvas.width; x += 50) {
+        ctx.lineTo(x, elements.canvas.height - 80 - Math.sin(x / 100) * 30);
+    }
+    ctx.lineTo(elements.canvas.width, elements.canvas.height - 50);
+    ctx.fill();
+    
+    // Ground
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(0, elements.canvas.height - 50, elements.canvas.width, 50);
+    ctx.fillStyle = '#A0522D';
+    ctx.fillRect(0, elements.canvas.height - 50, elements.canvas.width, 8);
+    // Ground pattern
+    ctx.fillStyle = '#654321';
+    for (let x = 0; x < elements.canvas.width; x += 30) {
+        ctx.fillRect(x, elements.canvas.height - 40, 20, 4);
+    }
+    
+    // Pipes with improved visuals
+    flappyPipes.forEach(pipe => {
+        // Top pipe
+        ctx.fillStyle = '#228B22';
+        ctx.fillRect(pipe.x, 0, 60, pipe.topHeight);
+        ctx.fillStyle = '#32CD32';
+        ctx.fillRect(pipe.x + 5, 0, 50, pipe.topHeight - 15);
+        // Pipe cap
+        ctx.fillStyle = '#1B5E20';
+        ctx.fillRect(pipe.x - 5, pipe.topHeight - 20, 70, 25);
+        
+        // Bottom pipe
+        ctx.fillStyle = '#228B22';
+        ctx.fillRect(pipe.x, pipe.bottomY, 60, elements.canvas.height - pipe.bottomY - 50);
+        ctx.fillStyle = '#32CD32';
+        ctx.fillRect(pipe.x + 5, pipe.bottomY + 15, 50, elements.canvas.height - pipe.bottomY - 60);
+        // Pipe cap
+        ctx.fillStyle = '#1B5E20';
+        ctx.fillRect(pipe.x - 5, pipe.bottomY - 5, 70, 25);
+        
+        // Bonus ring
+        if (pipe.hasBonus && !pipe.bonusCollected) {
+            const ringY = (pipe.topHeight + pipe.bottomY) / 2;
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(pipe.x + 30, ringY, 15, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(0, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.arc(pipe.x + 30, ringY, 15, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    });
+    
+    // Draw particles
+    flappyParticles.forEach(p => {
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    
+    // Bird with improved visuals
+    const wingFlap = Math.sin(Date.now() / 50) * 0.3;
+    
+    // Body
     ctx.fillStyle = '#FFD700';
     ctx.beginPath();
     ctx.arc(flappyBird.x, flappyBird.y, flappyBird.radius, 0, Math.PI * 2);
     ctx.fill();
     
-    // Eye
+    // Wing (animated)
+    ctx.fillStyle = '#FFA500';
+    ctx.beginPath();
+    ctx.ellipse(flappyBird.x - 5, flappyBird.y + 5 + wingFlap * 10, 10, 6, wingFlap, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Eye white
     ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.arc(flappyBird.x + 5, flappyBird.y - 5, 6, 0, Math.PI * 2);
+    ctx.arc(flappyBird.x + 6, flappyBird.y - 5, 7, 0, Math.PI * 2);
     ctx.fill();
+    
+    // Eye pupil
     ctx.fillStyle = '#000';
     ctx.beginPath();
-    ctx.arc(flappyBird.x + 7, flappyBird.y - 5, 3, 0, Math.PI * 2);
+    ctx.arc(flappyBird.x + 8, flappyBird.y - 5, 3, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Eye highlight
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(flappyBird.x + 7, flappyBird.y - 7, 1.5, 0, Math.PI * 2);
     ctx.fill();
     
     // Beak
-    ctx.fillStyle = '#ff6600';
+    ctx.fillStyle = '#FF6600';
     ctx.beginPath();
-    ctx.moveTo(flappyBird.x + 10, flappyBird.y);
-    ctx.lineTo(flappyBird.x + 20, flappyBird.y + 3);
-    ctx.lineTo(flappyBird.x + 10, flappyBird.y + 6);
+    ctx.moveTo(flappyBird.x + 12, flappyBird.y);
+    ctx.lineTo(flappyBird.x + 25, flappyBird.y + 4);
+    ctx.lineTo(flappyBird.x + 12, flappyBird.y + 8);
     ctx.fill();
     
-    // Wing
-    ctx.fillStyle = '#ffaa00';
+    // Beak highlight
+    ctx.fillStyle = '#FFA500';
     ctx.beginPath();
-    ctx.ellipse(flappyBird.x - 5, flappyBird.y + 3, 8, 5, 0, 0, Math.PI * 2);
+    ctx.moveTo(flappyBird.x + 12, flappyBird.y + 1);
+    ctx.lineTo(flappyBird.x + 20, flappyBird.y + 3);
+    ctx.lineTo(flappyBird.x + 12, flappyBird.y + 5);
+    ctx.fill();
+    
+    // Tail
+    ctx.fillStyle = '#FFA500';
+    ctx.beginPath();
+    ctx.moveTo(flappyBird.x - 15, flappyBird.y);
+    ctx.lineTo(flappyBird.x - 25, flappyBird.y - 8);
+    ctx.lineTo(flappyBird.x - 22, flappyBird.y);
+    ctx.lineTo(flappyBird.x - 25, flappyBird.y + 8);
     ctx.fill();
 }
 
@@ -1213,4 +1508,3 @@ function updateSnakeScore() {
 // ==================== START THE APP ====================
 
 window.addEventListener('load', init);
-

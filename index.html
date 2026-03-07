@@ -96,7 +96,7 @@
         </div>
     </div>
 
-    <!-- Player Name Screen -->
+<!-- Player Name Screen -->
     <div id="name-screen" class="screen hidden">
         <div class="bg-container">
             <div class="bg-image" style="background-image: url('https://i.pinimg.com/originals/13/9b/3b/139b3b57a041f24fb792d94d022baa2c.gif');"></div>
@@ -107,6 +107,7 @@
         <div class="content-wrapper">
             <h2>ENTER YOUR NAME</h2>
             <input type="text" id="player-name" class="name-input" placeholder="Your name" maxlength="15">
+            <p id="name-error" class="error-msg hidden">Name is required. Please enter your name.</p>
             <br>
             <button id="continue-btn" class="game-btn">CONTINUE</button>
         </div>
@@ -123,14 +124,6 @@
         <div class="content-wrapper">
             <h2 class="menu-title">Select Game</h2>
             <div class="games-grid">
-                <div class="game-card" data-game="chess">
-                    <div class="card-icon">♟</div>
-                    <span class="card-title">Chess</span>
-                </div>
-                <div class="game-card" data-game="dino">
-                    <div class="card-icon">🦖</div>
-                    <span class="card-title">Chrome Dino</span>
-                </div>
                 <div class="game-card" data-game="mumario">
                     <div class="card-icon">🍄</div>
                     <span class="card-title">Mumario</span>
@@ -138,10 +131,6 @@
                 <div class="game-card" data-game="flappybird">
                     <div class="card-icon">🐦</div>
                     <span class="card-title">Flappy Bird</span>
-                </div>
-                <div class="game-card" data-game="snake">
-                    <div class="card-icon">🐍</div>
-                    <span class="card-title">Snake</span>
                 </div>
             </div>
             <div class="player-info">
@@ -235,4 +224,3 @@
     </script>
 </body>
 </html>
-
