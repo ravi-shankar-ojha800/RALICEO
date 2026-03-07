@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="screen-orientation" content="landscape">
+    <meta name="orientation" content="landscape">
+    <title>RALICEO - Mobile Game Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Russo+One&display=swap" rel="stylesheet">
+    <style>
+        /* Force landscape on mobile */
+        @media screen and (orientation:portrait) {
+            html { transform: rotate(-90deg); transform-origin: left top; width: 100vh; height: 100vw; position: absolute; top: 100%; left: 0; }
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            html, body {
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+                position: fixed;
+                touch-action: none;
+            }
+            
+            .screen {
+                width: 100vw;
+                height: 100vh;
+            }
+            
+            .game-logo {
+                font-size: 48px !important;
+            }
+            
+            .game-btn {
+                padding: 16px 40px;
+                font-size: 16px;
+            }
+            
+            .games-grid {
+                gap: 10px;
+                max-width: 320px;
+            }
+            
+            .game-card {
+                padding: 15px 10px;
+            }
+            
+            .card-icon {
+                font-size: 28px;
+            }
+            
+            .card-title {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Orientation Warning Screen -->
+    <div id="orientation-warning" class="screen">
+        <div class="orientation-content">
+            <div class="phone-icon">📱</div>
+            <p>Please rotate your device</p>
+            <span class="rotate-hint">⟳</span>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="screen">
+        <div class="bg-container">
+            <div class="bg-image" style="background-image: url('https://i.pinimg.com/originals/13/40/f7/1340f7abca96a2eb48f1416b6dc577d8.gif');"></div>
+            <div class="bg-overlay"></div>
+        </div>
+        <div class="content-wrapper">
+            <div class="loading-spinner"></div>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <!-- Home Screen -->
+    <div id="home-screen" class="screen hidden">
+        <div class="bg-container">
+            <div class="bg-image" style="background-image: url('https://i.pinimg.com/originals/25/4c/3a/254c3ab0cbf821a1dd0b558c57269238.gif');"></div>
+            <div class="bg-overlay"></div>
+            <div class="soft-light"></div>
+            <div class="fog-layer"></div>
+        </div>
+        <div class="content-wrapper">
+            <h1 class="game-logo">RALICEO</h1>
+            <button id="enter-btn" class="game-btn">ENTER</button>
+        </div>
+    </div>
+
+    <!-- Player Name Screen -->
+    <div id="name-screen" class="screen hidden">
+        <div class="bg-container">
+            <div class="bg-image" style="background-image: url('https://i.pinimg.com/originals/13/9b/3b/139b3b57a041f24fb792d94d022baa2c.gif');"></div>
+            <div class="bg-overlay"></div>
+            <div class="soft-light"></div>
+            <div class="fog-layer"></div>
+        </div>
+        <div class="content-wrapper">
+            <h2>ENTER YOUR NAME</h2>
+            <input type="text" id="player-name" class="name-input" placeholder="Your name" maxlength="15">
+            <br>
+            <button id="continue-btn" class="game-btn">CONTINUE</button>
+        </div>
+    </div>
+
+    <!-- Game Selection Menu -->
+    <div id="menu-screen" class="screen hidden">
+        <div class="bg-container">
+            <div class="bg-image" style="background-image: url('https://i.pinimg.com/originals/02/67/d8/0267d8f4a223c9c4f6fe43e20de78d02.gif');"></div>
+            <div class="bg-overlay"></div>
+            <div class="soft-light"></div>
+            <div class="fog-layer"></div>
+        </div>
+        <div class="content-wrapper">
+            <h2 class="menu-title">Select Game</h2>
+            <div class="games-grid">
+                <div class="game-card" data-game="chess">
+                    <div class="card-icon">♟</div>
+                    <span class="card-title">Chess</span>
+                </div>
+                <div class="game-card" data-game="dino">
+                    <div class="card-icon">🦖</div>
+                    <span class="card-title">Chrome Dino</span>
+                </div>
+                <div class="game-card" data-game="mumario">
+                    <div class="card-icon">🍄</div>
+                    <span class="card-title">Mumario</span>
+                </div>
+                <div class="game-card" data-game="flappybird">
+                    <div class="card-icon">🐦</div>
+                    <span class="card-title">Flappy Bird</span>
+                </div>
+                <div class="game-card" data-game="snake">
+                    <div class="card-icon">🐍</div>
+                    <span class="card-title">Snake</span>
+                </div>
+            </div>
+            <div class="player-info">
+                <span id="display-name">Player</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div id="game-container" class="screen hidden">
+        <canvas id="game-canvas"></canvas>
+        <div class="game-ui">
+            <div class="score-display hidden" id="score-display">Score: 0</div>
+            <div class="game-info hidden" id="game-info"></div>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameover-screen" class="screen hidden">
+        <div class="bg-container">
+            <div class="bg-image" style="background-image: url('https://i.pinimg.com/originals/33/45/38/334538ffca9b394cb6410a18e860a447.gif');"></div>
+            <div class="bg-overlay"></div>
+            <div class="soft-light"></div>
+            <div class="fog-layer"></div>
+        </div>
+        <div class="content-wrapper">
+            <h1 class="gameover-title">ITS OVER</h1>
+            <p class="final-score" id="final-score">Score: 0</p>
+            <div class="gameover-btns">
+                <button id="retry-btn" class="game-btn">RETRY</button>
+                <button id="menu-btn" class="game-btn">MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="bg-music" loop>
+        <source src="" type="audio/mp3">
+    </audio>
+    <audio id="click-sound">
+        <source src="" type="audio/mp3">
+    </audio>
+    <audio id="gameover-sound">
+        <source src="" type="audio/mp3">
+    </audio>
+
+    <script src="main.js"></script>
+    
+    <script>
+        // Force fullscreen on mobile
+        function requestFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => {});
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        }
+        
+        // Auto request fullscreen on first touch/click
+        document.addEventListener('click', function() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                requestFullscreen();
+            }
+        }, { once: true });
+        
+        document.addEventListener('touchstart', function() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                requestFullscreen();
+            }
+        }, { once: true });
+        
+        // Lock to landscape on mobile
+        if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('landscape').catch(() => {});
+        }
+        
+        // Prevent default touch behaviors
+        document.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+        }, { passive: false });
+        
+        // Handle orientation change
+        window.addEventListener('orientationchange', function() {
+            setTimeout(function() {
+                window.scrollTo(0, 0);
+            }, 100);
+        });
+    </script>
+</body>
+</html>
+

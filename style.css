@@ -1,0 +1,502 @@
+/* ==================== RALICEO - Mobile Game Hub Styles ==================== */
+
+/* CSS Variables - Minimal Color Palette */
+:root {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #1a1a1a;
+    --bg-tertiary: #2a2a2a;
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
+    --text-muted: #707070;
+    --border-color: #404040;
+    --accent: #3a3a3a;
+    --accent-hover: #4a4a4a;
+    
+    --font-display: 'Orbitron', sans-serif;
+    --fontgame: 'Russo One', sans-serif;
+    --transition-speed: 0.3s;
+}
+
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-display);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Screen Management */
+.screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    transition: opacity 0.5s ease;
+}
+
+.screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Background Container */
+.bg-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.bg-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.6;
+    transition: opacity 0.5s;
+}
+
+.bg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(10, 10, 10, 0.6) 0%, rgba(10, 10, 10, 0.4) 100%);
+}
+
+/* Fog Animation */
+.fog-layer {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 300%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse at 20% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 30%, rgba(255, 255, 255, 0.03) 0%, transparent 40%),
+        radial-gradient(ellipse at 60% 70%, rgba(255, 255, 255, 0.03) 0%, transparent 40%);
+    animation: fogMove 30s linear infinite;
+}
+
+@keyframes fogMove {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(33%); }
+}
+
+/* Soft Light Effect */
+.soft-light {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: lightPulse 8s ease-in-out infinite;
+}
+
+@keyframes lightPulse {
+    0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+/* Content Container - CENTERED */
+.content-wrapper {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    padding: 40px;
+}
+
+/* ==================== ORIENTATION WARNING ==================== */
+#orientation-warning {
+    background: var(--bg-primary);
+    z-index: 9999;
+}
+
+.orientation-content {
+    text-align: center;
+}
+
+.phone-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+    opacity: 0.6;
+}
+
+.orientation-content p {
+    font-size: 24px;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+}
+
+.rotate-hint {
+    display: block;
+    font-size: 40px;
+    margin-top: 20px;
+    animation: rotate 3s linear infinite;
+    opacity: 0.5;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ==================== LOADING SCREEN ==================== */
+.loading-content {
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--text-secondary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-content p {
+    font-size: 14px;
+    color: var(--text-muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+/* ==================== HOME SCREEN ==================== */
+.game-logo {
+    font-family: var(--fontgame);
+    font-size: 80px;
+    font-weight: 900;
+    color: var(--text-primary);
+    letter-spacing: 8px;
+    margin-bottom: 50px;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    line-height: 1.1;
+}
+
+/* ==================== GAME BUTTONS ==================== */
+.game-btn {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    padding: 18px 50px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-speed);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    display: inline-block;
+}
+
+.game-btn:hover {
+    background: var(--accent-hover);
+    border-color: var(--text-muted);
+    transform: translateY(-2px);
+}
+
+.game-btn:active {
+    transform: translateY(0);
+    background: var(--bg-secondary);
+}
+
+/* ==================== NAME SCREEN ==================== */
+.name-content h2 {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 40px;
+    letter-spacing: 4px;
+}
+
+.name-input {
+    font-family: var(--font-display);
+    font-size: 18px;
+    padding: 15px 25px;
+    width: 100%;
+    max-width: 350px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    text-align: center;
+    outline: none;
+    margin-bottom: 30px;
+    transition: all var(--transition-speed);
+}
+
+.name-input:focus {
+    border-color: var(--text-muted);
+    background: var(--bg-tertiary);
+}
+
+.name-input::placeholder {
+    color: var(--text-muted);
+}
+
+/* ==================== GAME MENU ==================== */
+.menu-title {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 35px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+}
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 40px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.game-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 25px 20px;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+    text-align: center;
+}
+
+.game-card:hover {
+    background: var(--accent-hover);
+    border-color: var(--text-muted);
+    transform: translateY(-3px);
+}
+
+.game-card:active {
+    transform: translateY(0);
+}
+
+.card-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.card-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.player-info {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 10px;
+}
+
+#display-name {
+    color: var(--text-secondary);
+}
+
+/* ==================== GAME CONTAINER ==================== */
+#game-container {
+    padding: 0;
+    background: var(--bg-primary);
+}
+
+#game-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.game-ui {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.score-display {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    font-family: var(--font-display);
+    font-size: 22px;
+    color: var(--text-primary);
+    background: rgba(26, 26, 26, 0.8);
+    padding: 12px 24px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    letter-spacing: 2px;
+}
+
+.game-info {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    font-family: var(--font-display);
+    font-size: 16px;
+    color: var(--text-secondary);
+    background: rgba(26, 26, 26, 0.8);
+    padding: 12px 24px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    letter-spacing: 1px;
+}
+
+/* ==================== GAME OVER SCREEN ==================== */
+.gameover-content {
+    text-align: center;
+}
+
+.gameover-title {
+    font-family: var(--fontgame);
+    font-size: 72px;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    letter-spacing: 4px;
+}
+
+.final-score {
+    font-family: var(--font-display);
+    font-size: 20px;
+    color: var(--text-secondary);
+    margin-bottom: 35px;
+    letter-spacing: 2px;
+}
+
+.gameover-btns {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+@media (max-width: 768px) {
+    .game-logo {
+        font-size: 56px;
+    }
+    
+    .menu-title {
+        font-size: 20px;
+    }
+    
+    .games-grid {
+        gap: 12px;
+    }
+    
+    .game-card {
+        padding: 20px 15px;
+    }
+    
+    .card-icon {
+        font-size: 28px;
+    }
+    
+    .card-title {
+        font-size: 11px;
+    }
+    
+    .game-btn {
+        font-size: 14px;
+        padding: 14px 35px;
+    }
+    
+    .gameover-title {
+        font-size: 48px;
+    }
+    
+    .name-content h2 {
+        font-size: 22px;
+    }
+}
+
+/* ==================== LANDSCAPE ORIENTATION ==================== */
+@media (orientation: portrait) {
+    #orientation-warning {
+        display: flex !important;
+    }
+
+    .screen:not(#orientation-warning) {
+        display: none !important;
+    }
+}
+
+@media (orientation: landscape) {
+    #orientation-warning {
+        display: none !important;
+    }
+}
+
+/* ==================== HIDDEN UTILITY ==================== */
+.hidden {
+    display: none !important;
+}
+
+/* ==================== SCREEN TRANSITIONS ==================== */
+.screen-enter {
+    animation: screenEnter 0.5s forwards;
+}
+
+.screen-exit {
+    animation: screenExit 0.5s forwards;
+}
+
+@keyframes screenEnter {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes screenExit {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
