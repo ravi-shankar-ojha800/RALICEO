@@ -293,14 +293,19 @@ html, body {
     text-transform: uppercase;
 }
 
-.games-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+/* Menu Games Row - Side by side layout */
+.menu-games-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 30px;
     margin-bottom: 40px;
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
+}
+
+.games-grid {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 0;
 }
 
 /* Game Card - Completely Transparent Design */
@@ -450,9 +455,12 @@ html, body {
         font-size: 20px;
     }
     
+    .menu-games-row {
+        gap: 15px;
+    }
+    
     .games-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
+        gap: 10px;
     }
     
     .game-card {
@@ -766,9 +774,6 @@ html, body {
 
 /* ==================== MENU ICON BUTTON ==================== */
 .menu-icon {
-    position: fixed;
-    top: 20px;
-    right: 20px;
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -780,6 +785,7 @@ html, body {
     cursor: pointer;
     z-index: 500;
     transition: all var(--transition-speed);
+    flex-shrink: 0;
 }
 
 .menu-icon:hover {
