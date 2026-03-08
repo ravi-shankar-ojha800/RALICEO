@@ -482,26 +482,19 @@ html, body {
 }
 
 /* ==================== LANDSCAPE ORIENTATION ==================== */
-/* Force landscape on mobile - improved approach */
+/* In portrait mode, show orientation warning and hide other screens */
 @media screen and (orientation: portrait) {
-    /* On portrait, rotate the visual content but keep the layout working */
-    html, body {
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-        transform: rotate(90deg);
-        transform-origin: center center;
-        position: fixed;
-    }
-    
-    /* Hide the orientation warning since we're handling it */
     #orientation-warning {
-        display: none !important;
+        display: flex !important;
     }
     
-    .screen {
-        width: 100vw;
-        height: 100vh;
+    #loading-screen,
+    #home-screen,
+    #name-screen,
+    #menu-screen,
+    #game-container,
+    #gameover-screen {
+        display: none !important;
     }
 }
 
@@ -511,10 +504,6 @@ html, body {
         width: 100vw;
         height: 100vh;
         overflow: hidden;
-    }
-    
-    #orientation-warning {
-        display: none !important;
     }
 }
 

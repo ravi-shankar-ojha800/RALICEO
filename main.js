@@ -58,21 +58,30 @@ const ctx = elements.canvas.getContext('2d');
 
 // ==================== INITIALIZATION ====================
 
+// Track if game is ready to start (needs landscape)
+let gameReadyToStart = false;
+
 function init() {
+    // Setup canvas first
     setupCanvas();
     setupEventListeners();
     setupJoystick();
-    setupGameControls(); // NEW: Setup RUN & JUMP buttons
-    setupOrientationHandling(); // NEW: Setup improved orientation handling
+    setupGameControls();
+    setupOrientationHandling();
     
-    // Show orientation warning first - game won't start until landscape
-    showOrientationWarning();
+    // Check initial orientation BEFORE showing any other screen
+    const isLandscape = checkOrientation();
     
-    // Check initial orientation
-    checkOrientation();
-    
-    // Show loading screen first, but orientation check will control when game can proceed
-    showScreen('loading');
+    if (isLandscape) {
+        // Already in landscape - proceed normally
+        gameReadyToStart = true;
+        startLoadingSequence();
+    } else {
+        // In portrait mode - show orientation warning and wait
+        gameReadyToStart = false;
+        showOrientationWarning();
+        // Don't proceed with loading until landscape
+    }
     
     // Request fullscreen and lock orientation on mobile
     if (isMobileDevice) {
@@ -83,13 +92,15 @@ function init() {
     // Create ambient particles for screens
     createAmbientParticles('home-particles');
     createAmbientParticles('menu-particles');
+}
+
+// Start the loading sequence (only when in landscape)
+function startLoadingSequence() {
+    showScreen('loading');
     
-    // Simulate loading - but don't proceed if still in portrait
+    // Simulate loading
     setTimeout(() => {
-        // Only proceed to home screen if in landscape
-        if (isLandscapeMode()) {
-            showScreen('home');
-        }
+        showScreen('home');
     }, 2500);
 }
 
@@ -2339,7 +2350,11 @@ function handleOrientationChange() {
         }
         
         // If we were waiting to start a game, start it now
-        // (No page reload, smooth transition)
+        if (!gameReadyToStart) {
+            gameReadyToStart = true;
+            startLoadingSequence();
+        }
+        
         console.log('Device rotated to landscape - ready to play!');
     } else {
         // Device is in portrait - show orientation warning

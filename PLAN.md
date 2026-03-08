@@ -1,70 +1,39 @@
-# Implementation Plan: Mumario Mobile Controls Enhancement
+# Mumario Rotate Screen Implementation Plan
 
-## Information Gathered
+## Current State Analysis:
+- The game already has an orientation warning screen (`#orientation-warning`) with rotating icon and "ROTATE YOUR SCREEN" message
+- CSS currently forces landscape by rotating the entire HTML in portrait mode - this causes issues
+- The game proceeds to load regardless of orientation
 
-### Existing Code Structure:
-1. **index.html**: Contains all screens (orientation-warning, loading, home, name, menu, game-container, gameover), mobile controls (d-pad, joystick, jump-zone), and inline scripts
-2. **style.css**: Contains all styling including orientation handling, mobile controls styling
-3. **main.js**: Game logic for Mumario and other games, joystick/touch handling, orientation detection
+## Requirements:
+1. Show full black screen on website open
+2. Display "ROTATE YOUR SCREEN" with rotating icon animation in center
+3. Game must NOT start while in portrait mode
+4. Keep rotate message visible until landscape mode detected
+5. On landscape: auto-hide rotate screen, adjust to full screen, fit game ratio, start game
+6. All happen automatically without page reload
 
-### Key Findings:
-- Existing mobile controls are positioned but not exactly as requested
-- Orientation warning exists but needs message update
-- Joystick and jump zone already implemented in main.js
-- Keyboard controls already work for Mumario (Arrow keys + Space)
+## Changes Required:
 
-## Plan
+### 1. index.html
+- Keep orientation-warning structure (already has rotate-container with icon and title)
+- Add viewport-fit=cover meta tag (already present)
 
-### Step 1: Update HTML - Add Run/Jump Control Buttons
-- Add two large circular buttons in game-container
-- Position: Bottom right corner
-- Style: Semi-transparent, white icons, soft shadow
-- Add RUN button (forward icon) 
-- Add JUMP button (up arrow icon)
-- Hide by default, show only during gameplay on mobile
+### 2. style.css
+- **REMOVE** the problematic CSS that rotates entire HTML in portrait mode (lines with `@media screen and (orientation:portrait)`)
+- Ensure orientation-warning is always displayed in portrait mode (full black, z-index: 9999)
+- Ensure game screens are hidden when in portrait mode
+- Keep rotate animation for the icon
 
-### Step 2: Update CSS - Style the New Controls
-- Large circular buttons (80-100px diameter)
-- Semi-transparent background (rgba)
-- White icons/text
-- Soft shadow
-- Position fixed bottom-right
-- Ensure they don't block gameplay
-- Add active/pressed states
+### 3. main.js
+- Modify `init()` to show orientation warning first and WAIT for landscape
+- Update `checkOrientation()` to properly show/hide orientation warning
+- Add logic to prevent game from starting in portrait mode
+- On landscape detection: hide warning, request fullscreen, start game
+- Add dynamic resize handling for game canvas to fit screen ratio
 
-### Step 3: Update CSS - Improve Orientation Screen
-- Add "ROTATE YOUR PHONE" message
-- Add rotating animation icon
-- Style the rotate button
-- Smooth transitions
-
-### Step 4: Update JavaScript - Button Functionality
-- Add touch event handlers for RUN button (hold to run)
-- Add touch event handlers for JUMP button (tap to jump)
-- Add mouse event handlers for desktop testing
-- Integrate with existing window.mumarioKeys object
-
-### Step 5: Update JavaScript - Orientation Handling
-- Check orientation on load
-- Show/hide rotate screen based on orientation
-- Auto fullscreen when rotated to landscape
-- Auto start game after rotate + fullscreen
-- Add rotate button functionality
-- Smooth transition handling
-
-### Step 6: Testing Considerations
-- Ensure keyboard + touch controls work together
-- Ensure no page reload on orientation change
-- Performance optimization for mobile
-
-## Dependent Files to be Edited:
-1. **index.html** - Add button HTML elements
-2. **style.css** - Add button styles and orientation improvements
-3. **main.js** - Add button event handlers and orientation logic
-
-## Followup Steps:
-1. Test mobile touch controls
-2. Test orientation changes
-3. Verify fullscreen behavior
-4. Ensure smooth transitions
+## Implementation Steps:
+1. Update style.css - Remove problematic portrait CSS, ensure proper orientation warning display
+2. Update main.js - Improve orientation detection and game start logic
+3. Test the implementation
 

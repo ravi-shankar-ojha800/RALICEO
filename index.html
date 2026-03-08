@@ -12,52 +12,47 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Russo+One&display=swap" rel="stylesheet">
     <style>
-        /* Force landscape on mobile */
-        @media screen and (orientation:portrait) {
-            html { transform: rotate(-90deg); transform-origin: left top; width: 100vh; height: 100vw; position: absolute; top: 100%; left: 0; }
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: fixed;
+            touch-action: none;
         }
         
-        /* Mobile optimizations */
-        @media (max-width: 768px) {
-            html, body {
-                width: 100vw;
-                height: 100vh;
-                overflow: hidden;
-                position: fixed;
-                touch-action: none;
-            }
-            
-            .screen {
-                width: 100vw;
-                height: 100vh;
-            }
-            
-            .game-logo {
-                font-size: 48px !important;
-            }
-            
-            .game-btn {
-                padding: 16px 40px;
-                font-size: 16px;
-            }
-            
-            .games-grid {
-                gap: 10px;
-                max-width: 320px;
-            }
-            
-            .game-card {
-                padding: 15px 10px;
-            }
-            
-            .card-icon {
-                font-size: 28px;
-            }
-            
-            .card-title {
-                font-size: 10px;
-            }
+        .screen {
+            width: 100vw;
+            height: 100vh;
         }
+        
+        .game-logo {
+            font-size: 48px !important;
+        }
+        
+        .game-btn {
+            padding: 16px 40px;
+            font-size: 16px;
+        }
+        
+        .games-grid {
+            gap: 10px;
+            max-width: 320px;
+        }
+        
+        .game-card {
+            padding: 15px 10px;
+        }
+        
+        .card-icon {
+            font-size: 28px;
+        }
+        
+        .card-title {
+            font-size: 10px;
+        }
+    }
         
         /* Mobile Controls */
         .mobile-controls {
