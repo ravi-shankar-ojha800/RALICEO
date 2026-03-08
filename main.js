@@ -2111,97 +2111,93 @@ function setupJoystick() {
     });
 }
 
-// ==================== NEW: GAME CONTROLS (RUN, BACK & JUMP BUTTONS) ====================
+// ==================== NEW: GAME CONTROLS (LEFT, RIGHT & JUMP BUTTONS) ====================
 
 function setupGameControls() {
     const gameControls = document.getElementById('game-controls');
-    const runBtn = document.getElementById('run-btn');
-    const backBtn = document.getElementById('back-btn');
+    const leftBtn = document.getElementById('left-btn');
+    const rightBtn = document.getElementById('right-btn');
     const jumpBtn = document.getElementById('jump-btn-new');
     
-    if (!gameControls || !runBtn || !jumpBtn) return;
+    if (!gameControls || !leftBtn || !rightBtn || !jumpBtn) return;
     
     // Check if mobile device
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
     
-    // Show game controls on mobile or always for testing
-    if (isMobile || window.innerWidth < 1024) {
-        gameControls.classList.add('active');
-    }
+    // Show game controls always (visible on laptop too)
+    gameControls.classList.add('active');
     
-    // RUN button - hold to run forward (touch)
-    runBtn.addEventListener('touchstart', function(e) {
+    // LEFT button - hold to move backward (touch)
+    leftBtn.addEventListener('touchstart', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        runBtn.classList.add('pressed');
+        leftBtn.classList.add('pressed');
+        window.mumarioKeys.left = true;
+    }, { passive: false });
+    
+    leftBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        leftBtn.classList.remove('pressed');
+        window.mumarioKeys.left = false;
+    }, { passive: false });
+    
+    leftBtn.addEventListener('touchcancel', function(e) {
+        leftBtn.classList.remove('pressed');
+        window.mumarioKeys.left = false;
+    });
+    
+    // LEFT button - mouse support
+    leftBtn.addEventListener('mousedown', function(e) {
+        leftBtn.classList.add('pressed');
+        window.mumarioKeys.left = true;
+    });
+    
+    leftBtn.addEventListener('mouseup', function(e) {
+        leftBtn.classList.remove('pressed');
+        window.mumarioKeys.left = false;
+    });
+    
+    leftBtn.addEventListener('mouseleave', function(e) {
+        leftBtn.classList.remove('pressed');
+        window.mumarioKeys.left = false;
+    });
+    
+    // RIGHT button - hold to run forward (touch)
+    rightBtn.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        rightBtn.classList.add('pressed');
         window.mumarioKeys.right = true;
     }, { passive: false });
     
-    runBtn.addEventListener('touchend', function(e) {
+    rightBtn.addEventListener('touchend', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        runBtn.classList.remove('pressed');
+        rightBtn.classList.remove('pressed');
         window.mumarioKeys.right = false;
     }, { passive: false });
     
-    runBtn.addEventListener('touchcancel', function(e) {
-        runBtn.classList.remove('pressed');
+    rightBtn.addEventListener('touchcancel', function(e) {
+        rightBtn.classList.remove('pressed');
         window.mumarioKeys.right = false;
     });
     
-    // RUN button - mouse support for desktop testing
-    runBtn.addEventListener('mousedown', function(e) {
-        runBtn.classList.add('pressed');
+    // RIGHT button - mouse support
+    rightBtn.addEventListener('mousedown', function(e) {
+        rightBtn.classList.add('pressed');
         window.mumarioKeys.right = true;
     });
     
-    runBtn.addEventListener('mouseup', function(e) {
-        runBtn.classList.remove('pressed');
+    rightBtn.addEventListener('mouseup', function(e) {
+        rightBtn.classList.remove('pressed');
         window.mumarioKeys.right = false;
     });
     
-    runBtn.addEventListener('mouseleave', function(e) {
-        runBtn.classList.remove('pressed');
+    rightBtn.addEventListener('mouseleave', function(e) {
+        rightBtn.classList.remove('pressed');
         window.mumarioKeys.right = false;
     });
-    
-    // BACK button - hold to run backward (touch)
-    if (backBtn) {
-        backBtn.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            backBtn.classList.add('pressed');
-            window.mumarioKeys.left = true;
-        }, { passive: false });
-        
-        backBtn.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            backBtn.classList.remove('pressed');
-            window.mumarioKeys.left = false;
-        }, { passive: false });
-        
-        backBtn.addEventListener('touchcancel', function(e) {
-            backBtn.classList.remove('pressed');
-            window.mumarioKeys.left = false;
-        });
-        
-        // BACK button - mouse support
-        backBtn.addEventListener('mousedown', function(e) {
-            backBtn.classList.add('pressed');
-            window.mumarioKeys.left = true;
-        });
-        
-        backBtn.addEventListener('mouseup', function(e) {
-            backBtn.classList.remove('pressed');
-            window.mumarioKeys.left = false;
-        });
-        
-        backBtn.addEventListener('mouseleave', function(e) {
-            backBtn.classList.remove('pressed');
-            window.mumarioKeys.left = false;
-        });
-    }
     
     // JUMP button - tap to jump (touch)
     jumpBtn.addEventListener('touchstart', function(e) {
@@ -2230,7 +2226,7 @@ function setupGameControls() {
         jumpBtn.classList.remove('pressed');
     });
     
-    // JUMP button - mouse support for desktop testing
+    // JUMP button - mouse support
     jumpBtn.addEventListener('mousedown', function(e) {
         jumpBtn.classList.add('pressed');
         
