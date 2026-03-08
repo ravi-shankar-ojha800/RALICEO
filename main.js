@@ -62,6 +62,8 @@ function init() {
     setupCanvas();
     setupEventListeners();
     setupJoystick();
+    setupGameControls(); // NEW: Setup RUN & JUMP buttons
+    setupOrientationHandling(); // NEW: Setup improved orientation handling
     checkOrientation();
     showScreen('loading');
     
@@ -2107,6 +2109,179 @@ function setupJoystick() {
     jumpZone.addEventListener('mouseleave', function() {
         jumpZone.classList.remove('pressed');
     });
+}
+
+// ==================== NEW: GAME CONTROLS (RUN & JUMP BUTTONS) ====================
+
+function setupGameControls() {
+    const gameControls = document.getElementById('game-controls');
+    const runBtn = document.getElementById('run-btn');
+    const jumpBtn = document.getElementById('jump-btn-new');
+    
+    if (!gameControls || !runBtn || !jumpBtn) return;
+    
+    // Check if mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+    
+    // Show game controls on mobile or always for testing
+    if (isMobile || window.innerWidth < 1024) {
+        gameControls.classList.add('active');
+    }
+    
+    // RUN button - hold to run (touch)
+    runBtn.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        runBtn.classList.add('pressed');
+        window.mumarioKeys.right = true;
+    }, { passive: false });
+    
+    runBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        runBtn.classList.remove('pressed');
+        window.mumarioKeys.right = false;
+    }, { passive: false });
+    
+    runBtn.addEventListener('touchcancel', function(e) {
+        runBtn.classList.remove('pressed');
+        window.mumarioKeys.right = false;
+    });
+    
+    // RUN button - mouse support for desktop testing
+    runBtn.addEventListener('mousedown', function(e) {
+        runBtn.classList.add('pressed');
+        window.mumarioKeys.right = true;
+    });
+    
+    runBtn.addEventListener('mouseup', function(e) {
+        runBtn.classList.remove('pressed');
+        window.mumarioKeys.right = false;
+    });
+    
+    runBtn.addEventListener('mouseleave', function(e) {
+        runBtn.classList.remove('pressed');
+        window.mumarioKeys.right = false;
+    });
+    
+    // JUMP button - tap to jump (touch)
+    jumpBtn.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        jumpBtn.classList.add('pressed');
+        
+        if (gameState.isPlaying) {
+            if (gameState.currentGame === 'mumario') {
+                mumarioJump();
+            } else if (gameState.currentGame === 'flappybird') {
+                flappyFlap();
+            } else if (gameState.currentGame === 'dino') {
+                dinoJump();
+            }
+        }
+    }, { passive: false });
+    
+    jumpBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        jumpBtn.classList.remove('pressed');
+    }, { passive: false });
+    
+    jumpBtn.addEventListener('touchcancel', function(e) {
+        jumpBtn.classList.remove('pressed');
+    });
+    
+    // JUMP button - mouse support for desktop testing
+    jumpBtn.addEventListener('mousedown', function(e) {
+        jumpBtn.classList.add('pressed');
+        
+        if (gameState.isPlaying) {
+            if (gameState.currentGame === 'mumario') {
+                mumarioJump();
+            } else if (gameState.currentGame === 'flappybird') {
+                flappyFlap();
+            } else if (gameState.currentGame === 'dino') {
+                dinoJump();
+            }
+        }
+    });
+    
+    jumpBtn.addEventListener('mouseup', function(e) {
+        jumpBtn.classList.remove('pressed');
+    });
+    
+    jumpBtn.addEventListener('mouseleave', function(e) {
+        jumpBtn.classList.remove('pressed');
+    });
+}
+
+// ==================== NEW: ORIENTATION HANDLING ====================
+
+function setupOrientationHandling() {
+    const rotateScreenBtn = document.getElementById('rotate-screen-btn');
+    
+    // Handle rotate screen button click
+    if (rotateScreenBtn) {
+        rotateScreenBtn.addEventListener('click', function() {
+            handleRotateButtonClick();
+        });
+        
+        rotateScreenBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            handleRotateButtonClick();
+        }, { passive: false });
+    }
+    
+    // Listen for orientation changes
+    window.addEventListener('orientationchange', function() {
+        handleOrientationChange();
+    });
+    
+    // Also listen for resize to detect orientation changes
+    window.addEventListener('resize', function() {
+        handleOrientationChange();
+    });
+}
+
+function handleRotateButtonClick() {
+    // Request fullscreen
+    requestFullscreen();
+    
+    // Try to lock orientation
+    lockOrientation();
+    
+    // Check if now in landscape
+    setTimeout(function() {
+        handleOrientationChange();
+    }, 500);
+}
+
+function handleOrientationChange() {
+    const isLandscape = window.innerWidth > window.innerHeight;
+    const orientationWarning = document.getElementById('orientation-warning');
+    
+    if (isLandscape) {
+        // Device is now in landscape - hide orientation warning
+        if (orientationWarning) {
+            orientationWarning.style.display = 'none';
+            orientationWarning.classList.add('hidden');
+        }
+        
+        // Auto fullscreen when rotated to landscape
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            requestFullscreen();
+        }
+        
+        // If we were waiting to start a game, start it now
+        // (No page reload, smooth transition)
+        console.log('Device rotated to landscape - ready to play!');
+    } else {
+        // Device is in portrait - show orientation warning
+        if (orientationWarning) {
+            orientationWarning.style.display = 'flex';
+            orientationWarning.classList.remove('hidden');
+        }
+    }
 }
 
 // ==================== START THE APP ====================

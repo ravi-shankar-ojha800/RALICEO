@@ -202,8 +202,9 @@
     <div id="orientation-warning" class="screen">
         <div class="orientation-content">
             <div class="phone-icon">📱</div>
-            <p>Please rotate your device</p>
+            <p class="rotate-message">ROTATE YOUR PHONE</p>
             <span class="rotate-hint">⟳</span>
+            <button class="rotate-screen-btn" id="rotate-screen-btn">Rotate Screen</button>
         </div>
     </div>
 
@@ -300,6 +301,18 @@
                 <button class="control-btn" id="btn-right">▶</button>
             </div>
             <button class="control-btn jump-btn" id="btn-jump">JUMP</button>
+        </div>
+        
+        <!-- NEW: Run & Jump Control Buttons (Bottom Right) -->
+        <div class="game-controls" id="game-controls">
+            <button class="game-control-btn run-btn" id="run-btn">
+                <span class="btn-icon">▶</span>
+                <span class="btn-label">RUN</span>
+            </button>
+            <button class="game-control-btn jump-btn-new" id="jump-btn-new">
+                <span class="btn-icon">⬆</span>
+                <span class="btn-label">JUMP</span>
+            </button>
         </div>
     </div>
 
