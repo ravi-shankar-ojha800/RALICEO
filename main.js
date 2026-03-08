@@ -2111,11 +2111,12 @@ function setupJoystick() {
     });
 }
 
-// ==================== NEW: GAME CONTROLS (RUN & JUMP BUTTONS) ====================
+// ==================== NEW: GAME CONTROLS (RUN, BACK & JUMP BUTTONS) ====================
 
 function setupGameControls() {
     const gameControls = document.getElementById('game-controls');
     const runBtn = document.getElementById('run-btn');
+    const backBtn = document.getElementById('back-btn');
     const jumpBtn = document.getElementById('jump-btn-new');
     
     if (!gameControls || !runBtn || !jumpBtn) return;
@@ -2128,7 +2129,7 @@ function setupGameControls() {
         gameControls.classList.add('active');
     }
     
-    // RUN button - hold to run (touch)
+    // RUN button - hold to run forward (touch)
     runBtn.addEventListener('touchstart', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -2163,6 +2164,44 @@ function setupGameControls() {
         runBtn.classList.remove('pressed');
         window.mumarioKeys.right = false;
     });
+    
+    // BACK button - hold to run backward (touch)
+    if (backBtn) {
+        backBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            backBtn.classList.add('pressed');
+            window.mumarioKeys.left = true;
+        }, { passive: false });
+        
+        backBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            backBtn.classList.remove('pressed');
+            window.mumarioKeys.left = false;
+        }, { passive: false });
+        
+        backBtn.addEventListener('touchcancel', function(e) {
+            backBtn.classList.remove('pressed');
+            window.mumarioKeys.left = false;
+        });
+        
+        // BACK button - mouse support
+        backBtn.addEventListener('mousedown', function(e) {
+            backBtn.classList.add('pressed');
+            window.mumarioKeys.left = true;
+        });
+        
+        backBtn.addEventListener('mouseup', function(e) {
+            backBtn.classList.remove('pressed');
+            window.mumarioKeys.left = false;
+        });
+        
+        backBtn.addEventListener('mouseleave', function(e) {
+            backBtn.classList.remove('pressed');
+            window.mumarioKeys.left = false;
+        });
+    }
     
     // JUMP button - tap to jump (touch)
     jumpBtn.addEventListener('touchstart', function(e) {

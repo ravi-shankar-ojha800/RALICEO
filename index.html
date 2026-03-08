@@ -285,34 +285,26 @@
             <div class="game-info hidden" id="game-info"></div>
         </div>
         
-        <!-- Virtual Joystick for Run -->
-        <div class="joystick-container" id="joystick-container">
-            <div class="joystick-base"></div>
-            <div class="joystick-knob" id="joystick-knob"></div>
-        </div>
-        
-        <!-- Jump Button -->
-        <div class="jump-zone" id="jump-zone">JUMP</div>
-        
-        <!-- Mobile Controls (D-pad fallback) -->
-        <div class="mobile-controls" id="mobile-controls">
-            <div class="dpad">
-                <button class="control-btn" id="btn-left">◀</button>
-                <button class="control-btn" id="btn-right">▶</button>
-            </div>
-            <button class="control-btn jump-btn" id="btn-jump">JUMP</button>
-        </div>
-        
-        <!-- NEW: Run & Jump Control Buttons (Bottom Right) -->
+        <!-- NEW: Game Control Buttons (3 buttons only) -->
         <div class="game-controls" id="game-controls">
-            <button class="game-control-btn run-btn" id="run-btn">
-                <span class="btn-icon">▶</span>
-                <span class="btn-label">RUN</span>
-            </button>
-            <button class="game-control-btn jump-btn-new" id="jump-btn-new">
-                <span class="btn-icon">⬆</span>
-                <span class="btn-label">JUMP</span>
-            </button>
+            <!-- Left side: RUN and BACK buttons -->
+            <div class="controls-left">
+                <button class="game-control-btn run-btn" id="run-btn">
+                    <span class="btn-icon">▶</span>
+                    <span class="btn-label">RUN</span>
+                </button>
+                <button class="game-control-btn back-btn" id="back-btn">
+                    <span class="btn-icon">◀</span>
+                    <span class="btn-label">BACK</span>
+                </button>
+            </div>
+            <!-- Right side: JUMP button -->
+            <div class="controls-right">
+                <button class="game-control-btn jump-btn-new" id="jump-btn-new">
+                    <span class="btn-icon">⬆</span>
+                    <span class="btn-label">JUMP</span>
+                </button>
+            </div>
         </div>
     </div>
 
