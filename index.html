@@ -220,10 +220,13 @@
         </div>
     </div>
 
-    <!-- Home Screen -->
+<!-- Home Screen -->
     <div id="home-screen" class="screen hidden">
         <div class="bg-container">
-            <div class="bg-image" style="background-image: url('https://i.pinimg.com/originals/25/4c/3a/254c3ab0cbf821a1dd0b558c57269238.gif');"></div>
+            <!-- Video Background for Home Screen -->
+            <video id="home-video-bg" autoplay muted loop playsinline class="home-video">
+                <source src="https://cdn.pixabay.com/video/2024/06/26/218309_large.mp4" type="video/mp4">
+            </video>
             <div class="bg-overlay"></div>
             <div class="soft-light"></div>
             <div class="fog-layer"></div>
@@ -237,7 +240,10 @@
 <!-- Player Name Screen -->
     <div id="name-screen" class="screen hidden">
         <div class="bg-container">
-            <div class="bg-image" style="background-image: url('https://i.pinimg.com/originals/13/9b/3b/139b3b57a041f24fb792d94d022baa2c.gif');"></div>
+            <!-- Video Background for Name Screen -->
+            <video id="name-video-bg" autoplay muted loop playsinline class="name-video">
+                <source src="https://cdn.pixabay.com/video/2023/08/09/175323-853193719_large.mp4" type="video/mp4">
+            </video>
             <div class="bg-overlay"></div>
             <div class="soft-light"></div>
             <div class="fog-layer"></div>
@@ -254,13 +260,15 @@
     <!-- Game Selection Menu -->
     <div id="menu-screen" class="screen hidden">
         <div class="bg-container">
-            <div class="bg-image" style="background-image: url('https://i.pinimg.com/originals/02/67/d8/0267d8f4a223c9c4f6fe43e20de78d02.gif');"></div>
+            <!-- Video Background for Game Selection -->
+            <video id="menu-video-bg" autoplay muted loop playsinline class="menu-video">
+                <source src="https://cdn.pixabay.com/video/2020/03/13/33628-397860881_large.mp4" type="video/mp4">
+            </video>
             <div class="bg-overlay"></div>
             <div class="soft-light"></div>
             <div class="fog-layer"></div>
         </div>
         <div class="content-wrapper">
-            <h2 class="menu-title">Select Game</h2>
             <div class="menu-games-row">
                 <!-- Menu Icon -->
                 <div id="menu-icon-btn" class="menu-icon">
@@ -287,7 +295,10 @@
     <!-- Game Loading Screen -->
     <div id="game-loading-screen" class="screen hidden">
         <div class="bg-container">
-            <div class="bg-image" style="background-image: url('https://i.pinimg.com/originals/3a/e7/92/3ae792706e97941696b70b4763bd2963.gif');"></div>
+            <!-- Video Background for Game Loading -->
+            <video id="game-loading-video-bg" autoplay muted loop playsinline class="game-loading-video">
+                <source src="https://cdn.pixabay.com/video/2022/01/15/104567-667563063_large.mp4" type="video/mp4">
+            </video>
             <div class="bg-overlay"></div>
         </div>
         <div class="content-wrapper">
@@ -330,10 +341,15 @@
         </div>
     </div>
 
-    <!-- Game Over Screen -->
+<!-- Game Over Screen -->
     <div id="gameover-screen" class="screen hidden">
         <div class="bg-container">
-            <div class="bg-image" style="background-image: url('https://i.pinimg.com/originals/33/45/38/334538ffca9b394cb6410a18e860a447.gif');"></div>
+            <!-- White background first -->
+            <div class="gameover-white-bg"></div>
+            <!-- Video Background for Game Over -->
+            <video id="gameover-video-bg" autoplay muted loop playsinline class="gameover-video">
+                <source src="https://cdn.pixabay.com/video/2025/12/21/323473_large.mp4" type="video/mp4">
+            </video>
             <div class="bg-overlay"></div>
             <div class="soft-light"></div>
             <div class="fog-layer"></div>
@@ -362,7 +378,10 @@
     <!-- About This Game Page -->
     <div id="about-game-screen" class="screen hidden">
         <div class="bg-container">
-            <div class="bg-image" id="about-game-bg" style="background-image: url('https://i.pinimg.com/originals/75/37/fc/7537fcc63babf246b2ad52936e53d356.gif');"></div>
+            <!-- Video Background for About This Game -->
+            <video id="about-game-video-bg" autoplay muted loop playsinline class="about-game-video">
+                <source src="https://cdn.pixabay.com/video/2024/08/18/227152_large.mp4" type="video/mp4">
+            </video>
             <div class="bg-overlay"></div>
         </div>
         <div class="content-wrapper about-content">
@@ -375,7 +394,10 @@
     <!-- About The Creator Page -->
     <div id="about-creator-screen" class="screen hidden">
         <div class="bg-container">
-<div class="bg-image" id="about-creator-bg" style="background-image: url('https://i.pinimg.com/originals/96/00/f3/9600f399b7b40637cc04083931585c50.gif');"></div>
+            <!-- Video Background for About The Creator -->
+            <video id="about-creator-video-bg" autoplay muted loop playsinline class="about-creator-video">
+                <source src="https://cdn.pixabay.com/video/2024/08/18/227152_large.mp4" type="video/mp4">
+            </video>
             <div class="bg-overlay"></div>
         </div>
         <div class="content-wrapper about-content">
@@ -389,10 +411,13 @@
         </div>
     </div>
 
-    <!-- Game Settings Page -->
+<!-- Game Settings Page -->
     <div id="settings-screen" class="screen hidden">
         <div class="bg-container">
-<div class="bg-image" id="settings-bg" style="background-image: url('https://i.pinimg.com/originals/c9/67/de/c967dee22a4f1a651684bb0fd4ab49a8.gif');"></div>
+            <!-- Video Background for Settings -->
+            <video id="settings-video-bg" autoplay muted loop playsinline class="settings-video">
+                <source src="https://cdn.pixabay.com/video/2017/05/06/9005-216332135_large.mp4" type="video/mp4">
+            </video>
             <div class="bg-overlay"></div>
         </div>
         <div class="content-wrapper settings-content">

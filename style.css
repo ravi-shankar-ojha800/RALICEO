@@ -362,6 +362,124 @@ html, body {
     color: rgba(255, 255, 255, 0.5);
 }
 
+/* Video Background for Home Screen */
+.home-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    object-position: center;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Video Background for Menu Screen */
+.menu-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    object-position: center;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Video Background for Name Screen */
+.name-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    object-position: center;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Video Background for Settings Screen */
+.settings-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    object-position: center;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Video Background for Game Loading Screen */
+.game-loading-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    object-position: center;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Video Background for About This Game Screen */
+.about-game-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    object-position: center;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Video Background for About The Creator Screen */
+.about-creator-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    object-position: center;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* White background for Game Over screen */
+.gameover-white-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+    z-index: 0;
+}
+
+/* Video Background for Game Over Screen - maintain aspect ratio */
+.gameover-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    max-width: none;
+    max-height: none;
+    z-index: 1;
+    pointer-events: none;
+}
+
 /* ==================== GAME MENU ==================== */
 .menu-title {
     font-family: var(--font-display);
@@ -506,7 +624,7 @@ html, body {
     font-family: var(--fontgame);
     font-size: 72px;
     font-weight: 900;
-    color: var(--text-primary);
+    color: #000000;
     margin-bottom: 15px;
     letter-spacing: 4px;
 }
@@ -514,7 +632,7 @@ html, body {
 .final-score {
     font-family: var(--font-display);
     font-size: 20px;
-    color: var(--text-secondary);
+    color: #000000;
     margin-bottom: 35px;
     letter-spacing: 2px;
 }
@@ -523,6 +641,12 @@ html, body {
     display: flex;
     gap: 20px;
     justify-content: center;
+}
+
+.gameover-btns .game-btn {
+    background: #000000;
+    color: #ffffff;
+    border-color: #000000;
 }
 
 /* ==================== RESPONSIVE DESIGN ==================== */
