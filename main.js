@@ -25,21 +25,39 @@ const gameState = {
     currentGame: null,
     score: 0,
     isPlaying: false,
-    gameLoop: null
+    gameLoop: null,
+    clickScreenActive: true  // Track if click screen is active
 };
 
 // DOM Elements
 const screens = {
+    click: document.getElementById('click-screen'),
     orientation: document.getElementById('orientation-warning'),
     loading: document.getElementById('loading-screen'),
     home: document.getElementById('home-screen'),
     name: document.getElementById('name-screen'),
     menu: document.getElementById('menu-screen'),
     game: document.getElementById('game-container'),
-    gameover: document.getElementById('gameover-screen')
+    gameover: document.getElementById('gameover-screen'),
+    aboutGame: document.getElementById('about-game-screen'),
+    aboutCreator: document.getElementById('about-creator-screen'),
+    settings: document.getElementById('settings-screen')
 };
 
 const elements = {
+    clickFullscreenBtn: document.getElementById('click-fullscreen-btn'),
+    menuIconBtn: document.getElementById('menu-icon-btn'),
+    overlayMenu: document.getElementById('overlay-menu'),
+    menuSettingsBtn: document.getElementById('menu-settings-btn'),
+    menuAboutGameBtn: document.getElementById('menu-about-game-btn'),
+    menuAboutCreatorBtn: document.getElementById('menu-about-creator-btn'),
+    aboutGameBackBtn: document.getElementById('about-game-back-btn'),
+    aboutCreatorBackBtn: document.getElementById('about-creator-back-btn'),
+    settingsBackBtn: document.getElementById('settings-back-btn'),
+    brightnessSlider: document.getElementById('brightness-slider'),
+    volumeSlider: document.getElementById('volume-slider'),
+    brightnessOverlay: document.getElementById('brightness-overlay'),
+    bgMusic: document.getElementById('bg-music'),
     enterBtn: document.getElementById('enter-btn'),
     continueBtn: document.getElementById('continue-btn'),
     playerNameInput: document.getElementById('player-name'),
@@ -67,31 +85,159 @@ function init() {
     setupEventListeners();
     setupJoystick();
     setupGameControls();
-    setupOrientationHandling();
+    setupNewFeatures(); // Setup new click screen and menu features
+    setupOrientationHandling(); // Setup orientation change handling
     
-    // Check initial orientation BEFORE showing any other screen
-    const isLandscape = checkOrientation();
+    // Initially show click screen
+    showScreen('click');
     
-    if (isLandscape) {
-        // Already in landscape - proceed normally
-        gameReadyToStart = true;
-        startLoadingSequence();
-    } else {
-        // In portrait mode - show orientation warning and wait
-        gameReadyToStart = false;
-        showOrientationWarning();
-        // Don't proceed with loading until landscape
+    // Listen for orientation changes (for after click screen is done)
+    window.addEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener('resize', handleOrientationChange);
+}
+
+function setupNewFeatures() {
+    // Click screen fullscreen button
+    if (elements.clickFullscreenBtn) {
+        elements.clickFullscreenBtn.addEventListener('click', handleClickFullscreen);
+        elements.clickFullscreenBtn.addEventListener('touchstart', handleClickFullscreen, { passive: false });
     }
     
-    // Request fullscreen and lock orientation on mobile
-    if (isMobileDevice) {
-        requestFullscreen();
-        lockOrientation();
+    // Menu icon button
+    if (elements.menuIconBtn) {
+        elements.menuIconBtn.addEventListener('click', toggleOverlayMenu);
     }
     
-    // Create ambient particles for screens
-    createAmbientParticles('home-particles');
-    createAmbientParticles('menu-particles');
+    // Overlay menu buttons
+    if (elements.menuSettingsBtn) {
+        elements.menuSettingsBtn.addEventListener('click', () => {
+            hideOverlayMenu();
+            showScreen('settings');
+        });
+    }
+    
+    if (elements.menuAboutGameBtn) {
+        elements.menuAboutGameBtn.addEventListener('click', () => {
+            hideOverlayMenu();
+            showScreen('aboutGame');
+        });
+    }
+    
+    if (elements.menuAboutCreatorBtn) {
+        elements.menuAboutCreatorBtn.addEventListener('click', () => {
+            hideOverlayMenu();
+            showScreen('aboutCreator');
+        });
+    }
+    
+    // Back buttons
+    if (elements.aboutGameBackBtn) {
+        elements.aboutGameBackBtn.addEventListener('click', () => {
+            showScreen('menu');
+            showMenuIcon();
+        });
+    }
+    
+    if (elements.aboutCreatorBackBtn) {
+        elements.aboutCreatorBackBtn.addEventListener('click', () => {
+            showScreen('menu');
+            showMenuIcon();
+        });
+    }
+    
+    if (elements.settingsBackBtn) {
+        elements.settingsBackBtn.addEventListener('click', () => {
+            showScreen('menu');
+            showMenuIcon();
+        });
+    }
+    
+    // Settings sliders
+    if (elements.brightnessSlider) {
+        elements.brightnessSlider.addEventListener('input', handleBrightnessChange);
+    }
+    
+    if (elements.volumeSlider) {
+        elements.volumeSlider.addEventListener('input', handleVolumeChange);
+    }
+    
+    // Initialize volume
+    handleVolumeChange();
+}
+
+function handleClickFullscreen(e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    // Request fullscreen
+    requestFullscreen();
+    
+    // Lock orientation
+    lockOrientation();
+    
+    // Mark click screen as done
+    gameState.clickScreenActive = false;
+    
+    // Check orientation and proceed accordingly
+    setTimeout(() => {
+        const isLandscape = window.innerWidth > window.innerHeight;
+        
+        if (isLandscape) {
+            // Already in landscape - proceed to loading
+            hideOrientationWarning();
+            startLoadingSequence();
+        } else {
+            // In portrait - show rotate screen
+            showOrientationWarning();
+        }
+    }, 300);
+}
+
+function showMenuIcon() {
+    if (elements.menuIconBtn) {
+        elements.menuIconBtn.classList.remove('hidden');
+    }
+}
+
+function hideMenuIcon() {
+    if (elements.menuIconBtn) {
+        elements.menuIconBtn.classList.add('hidden');
+    }
+}
+
+function toggleOverlayMenu() {
+    if (elements.overlayMenu) {
+        elements.overlayMenu.classList.toggle('hidden');
+    }
+}
+
+function hideOverlayMenu() {
+    if (elements.overlayMenu) {
+        elements.overlayMenu.classList.add('hidden');
+    }
+}
+
+function handleBrightnessChange() {
+    const brightness = elements.brightnessSlider.value;
+    const overlay = elements.brightnessOverlay;
+    
+    // Calculate opacity (0-100 brightness maps to 0-0.7 opacity)
+    const opacity = (100 - brightness) / 100 * 0.7;
+    
+    if (overlay) {
+        overlay.style.background = `rgba(0, 0, 0, ${opacity})`;
+    }
+}
+
+function handleVolumeChange() {
+    const volume = elements.volumeSlider.value / 100;
+    
+    // Update background music volume
+    if (elements.bgMusic) {
+        elements.bgMusic.volume = volume * 0.5; // Max 50% for background
+    }
 }
 
 // Start the loading sequence (only when in landscape)
@@ -239,12 +385,29 @@ function setupEventListeners() {
 // ==================== SCREEN NAVIGATION ====================
 
 function showScreen(screenName) {
+    // Hide all screens first
     Object.values(screens).forEach(screen => {
-        screen.classList.add('hidden');
+        if (screen) {
+            screen.classList.add('hidden');
+        }
     });
     
-    screens[screenName].classList.remove('hidden');
-    screens[screenName].classList.add('screen-enter');
+    // Show the target screen
+    if (screens[screenName]) {
+        screens[screenName].classList.remove('hidden');
+        screens[screenName].classList.add('screen-enter');
+        
+        setTimeout(() => {
+            screens[screenName].classList.remove('screen-enter');
+        }, 500);
+    }
+    
+    // Handle menu icon visibility
+    if (screenName === 'menu') {
+        showMenuIcon();
+    } else {
+        hideMenuIcon();
+    }
     
     // Activate mobile controls when game screen is shown
     if (screenName === 'game') {
@@ -257,9 +420,8 @@ function showScreen(screenName) {
         }
     }
     
-    setTimeout(() => {
-        screens[screenName].classList.remove('screen-enter');
-    }, 500);
+    // Hide overlay menu when changing screens
+    hideOverlayMenu();
 }
 
 // ==================== ORIENTATION DETECTION ====================

@@ -193,8 +193,15 @@
     </style>
 </head>
 <body>
+    <!-- 1. Click For Max Screen (Before Rotate) - Initial Black Screen -->
+    <div id="click-screen" class="screen">
+        <div class="click-container">
+            <button id="click-fullscreen-btn" class="click-btn">CLICK HERE</button>
+        </div>
+    </div>
+
     <!-- Orientation Warning Screen - Full Black Screen -->
-    <div id="orientation-warning" class="screen">
+    <div id="orientation-warning" class="screen hidden">
         <div class="rotate-container">
             <div class="rotate-icon">⟳</div>
             <h1 class="rotate-title">ROTATE YOUR SCREEN</h1>
@@ -318,6 +325,78 @@
             </div>
         </div>
     </div>
+
+    <!-- Menu Icon Button (Top Area) -->
+    <div id="menu-icon-btn" class="menu-icon hidden">
+        <span>☰</span>
+    </div>
+
+    <!-- Overlay Menu -->
+    <div id="overlay-menu" class="overlay-menu hidden">
+        <div class="overlay-content">
+            <button id="menu-settings-btn" class="overlay-btn">Game Settings</button>
+            <button id="menu-about-game-btn" class="overlay-btn">About This Game</button>
+            <button id="menu-about-creator-btn" class="overlay-btn">About The Creator</button>
+        </div>
+    </div>
+
+    <!-- About This Game Page -->
+    <div id="about-game-screen" class="screen hidden">
+        <div class="bg-container">
+            <div class="bg-image" id="about-game-bg" style="background-image: url('https://i.pinimg.com/originals/75/37/fc/7537fcc63babf246b2ad52936e53d356.gif');"></div>
+            <div class="bg-overlay"></div>
+        </div>
+        <div class="content-wrapper about-content">
+            <h2 class="about-title">About This Game</h2>
+            <p class="about-text">This is an interesting browser game created for learning, entertainment and fun.<br><br>This project is made for educational purposes and enjoyment.<br>No rules or laws are violated while creating this game.</p>
+            <button id="about-game-back-btn" class="game-btn back-btn-style">BACK</button>
+        </div>
+    </div>
+
+    <!-- About The Creator Page -->
+    <div id="about-creator-screen" class="screen hidden">
+        <div class="bg-container">
+<div class="bg-image" id="about-creator-bg" style="background-image: url('https://i.pinimg.com/originals/96/00/f3/9600f399b7b40637cc04083931585c50.gif');"></div>
+            <div class="bg-overlay"></div>
+        </div>
+        <div class="content-wrapper about-content">
+            <h2 class="about-title">About The Creator</h2>
+            <p class="about-text creator-text">This game is made by<br><span class="creator-name">Rs_ojha</span></p>
+            <p class="support-text">For support this creator visit the YouTube channel.</p>
+            <a href="https://www.youtube.com/@Rs_ojha" target="_blank" id="youtube-link" class="youtube-link">
+                <span class="youtube-icon">▶</span> YouTube Channel
+            </a>
+            <button id="about-creator-back-btn" class="game-btn back-btn-style">BACK</button>
+        </div>
+    </div>
+
+    <!-- Game Settings Page -->
+    <div id="settings-screen" class="screen hidden">
+        <div class="bg-container">
+<div class="bg-image" id="settings-bg" style="background-image: url('https://i.pinimg.com/originals/c9/67/de/c967dee22a4f1a651684bb0fd4ab49a8.gif');"></div>
+            <div class="bg-overlay"></div>
+        </div>
+        <div class="content-wrapper settings-content">
+            <h2 class="settings-title">Game Settings</h2>
+            
+            <!-- Brightness Slider -->
+            <div class="setting-item">
+                <label class="setting-label">Brightness</label>
+                <input type="range" id="brightness-slider" class="setting-slider" min="0" max="100" value="100">
+            </div>
+            
+            <!-- Volume Slider -->
+            <div class="setting-item">
+                <label class="setting-label">Game Audio</label>
+                <input type="range" id="volume-slider" class="setting-slider" min="0" max="100" value="50">
+            </div>
+            
+            <button id="settings-back-btn" class="game-btn back-btn-style">BACK</button>
+        </div>
+    </div>
+
+    <!-- Brightness Overlay -->
+    <div id="brightness-overlay" class="brightness-overlay hidden"></div>
 
     <!-- Audio Elements -->
     <audio id="bg-music" loop>
