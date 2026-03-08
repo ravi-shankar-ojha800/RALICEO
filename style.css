@@ -195,6 +195,86 @@ html, body {
     text-transform: uppercase;
 }
 
+/* ==================== GAME LOADING SCREEN ==================== */
+#game-loading-screen {
+    z-index: 200;
+}
+
+#game-loading-screen .bg-overlay {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.loading-title {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 40px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    text-shadow: 0 0 20px rgba(57, 255, 20, 0.7);
+    animation: pulseLoading 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseLoading {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.02); }
+}
+
+.loading-bar-container {
+    width: 100%;
+    max-width: 400px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0 auto 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.loading-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #39ff14, #00ff88, #39ff14);
+    background-size: 200% 100%;
+    border-radius: 8px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 15px rgba(57, 255, 20, 0.7);
+    animation: loadingGradient 1.5s linear infinite;
+}
+
+@keyframes loadingGradient {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+.loading-percentage {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 4px;
+    text-shadow: 0 0 15px rgba(57, 255, 20, 0.7);
+}
+
+/* Mobile responsive for game loading screen */
+@media (max-width: 768px) {
+    .loading-title {
+        font-size: 24px;
+        margin-bottom: 30px;
+    }
+    
+    .loading-bar-container {
+        max-width: 280px;
+        height: 16px;
+    }
+    
+    .loading-percentage {
+        font-size: 20px;
+    }
+}
+
 /* ==================== HOME SCREEN ==================== */
 .game-logo {
     font-family: var(--fontgame);

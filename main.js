@@ -37,6 +37,7 @@ const screens = {
     home: document.getElementById('home-screen'),
     name: document.getElementById('name-screen'),
     menu: document.getElementById('menu-screen'),
+    gameLoading: document.getElementById('game-loading-screen'),
     game: document.getElementById('game-container'),
     gameover: document.getElementById('gameover-screen'),
     aboutGame: document.getElementById('about-game-screen'),
@@ -494,13 +495,90 @@ function createAmbientParticles(containerId) {
 
 // ==================== GAME MANAGEMENT ====================
 
+// Loading progress milestones
+const loadingMilestones = [
+    { percent: 0, delay: 0 },
+    { percent: 20, delay: 500 },
+    { percent: 35, delay: 1000 },
+    { percent: 60, delay: 1800 },
+    { percent: 80, delay: 2600 },
+    { percent: 100, delay: 3500 }
+];
+
+let loadingInterval = null;
+let loadingTimeout = null;
+
 function startGame(gameName) {
+    // Store the game name for later
     gameState.currentGame = gameName;
     gameState.score = 0;
-    showScreen('game');
     
-    resetCurrentGame();
-    startCurrentGame();
+    // Reset loading elements
+    const loadingBar = document.getElementById('loading-bar');
+    const loadingPercentage = document.getElementById('loading-percentage');
+    
+    if (loadingBar) loadingBar.style.width = '0%';
+    if (loadingPercentage) loadingPercentage.textContent = '0%';
+    
+    // Show the game loading screen first
+    showScreen('gameLoading');
+    
+    // Start the loading animation
+    runLoadingAnimation();
+}
+
+function runLoadingAnimation() {
+    const loadingBar = document.getElementById('loading-bar');
+    const loadingPercentage = document.getElementById('loading-percentage');
+    
+    let currentStep = 0;
+    
+    // Clear any existing intervals/timeouts
+    if (loadingInterval) clearInterval(loadingInterval);
+    if (loadingTimeout) clearTimeout(loadingTimeout);
+    
+    function updateProgress() {
+        if (currentStep >= loadingMilestones.length) {
+            // Loading complete - start the actual game after a short delay
+            if (loadingTimeout) clearTimeout(loadingTimeout);
+            loadingTimeout = setTimeout(() => {
+                // Hide loading screen and start game
+                showScreen('game');
+                resetCurrentGame();
+                startCurrentGame();
+                
+                // Reset loading state
+                if (loadingBar) loadingBar.style.width = '0%';
+                if (loadingPercentage) loadingPercentage.textContent = '0%';
+            }, 300);
+            return;
+        }
+        
+        const milestone = loadingMilestones[currentStep];
+        
+        // Update the progress bar and percentage
+        if (loadingBar) loadingBar.style.width = milestone.percent + '%';
+        if (loadingPercentage) loadingPercentage.textContent = milestone.percent + '%';
+        
+        // Calculate delay to next milestone
+        let nextDelay = 300;
+        if (currentStep < loadingMilestones.length - 1) {
+            nextDelay = loadingMilestones[currentStep + 1].delay - milestone.delay;
+        }
+        
+        currentStep++;
+        
+        // Schedule next update
+        if (currentStep < loadingMilestones.length) {
+            loadingTimeout = setTimeout(updateProgress, Math.max(nextDelay, 100));
+        } else {
+            // Final step - wait a bit then start game
+            loadingTimeout = setTimeout(updateProgress, 300);
+        }
+    }
+    
+    // Start the animation
+    updateProgress();
 }
 
 function resetCurrentGame() {
