@@ -64,7 +64,14 @@ function init() {
     setupJoystick();
     setupGameControls(); // NEW: Setup RUN & JUMP buttons
     setupOrientationHandling(); // NEW: Setup improved orientation handling
+    
+    // Show orientation warning first - game won't start until landscape
+    showOrientationWarning();
+    
+    // Check initial orientation
     checkOrientation();
+    
+    // Show loading screen first, but orientation check will control when game can proceed
     showScreen('loading');
     
     // Request fullscreen and lock orientation on mobile
@@ -77,10 +84,34 @@ function init() {
     createAmbientParticles('home-particles');
     createAmbientParticles('menu-particles');
     
-    // Simulate loading
+    // Simulate loading - but don't proceed if still in portrait
     setTimeout(() => {
-        showScreen('home');
+        // Only proceed to home screen if in landscape
+        if (isLandscapeMode()) {
+            showScreen('home');
+        }
     }, 2500);
+}
+
+// Check if device is in landscape mode
+function isLandscapeMode() {
+    return window.innerWidth > window.innerHeight;
+}
+
+// Show orientation warning screen
+function showOrientationWarning() {
+    const orientationWarning = document.getElementById('orientation-warning');
+    if (orientationWarning) {
+        orientationWarning.style.display = 'flex';
+    }
+}
+
+// Hide orientation warning screen
+function hideOrientationWarning() {
+    const orientationWarning = document.getElementById('orientation-warning');
+    if (orientationWarning) {
+        orientationWarning.style.display = 'none';
+    }
 }
 
 // Request fullscreen on mobile
