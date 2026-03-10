@@ -633,6 +633,37 @@ html, body {
     box-shadow: none;
 }
 
+/* START GAME Button - Small Transparent Style */
+.game-card[data-game="mumario"] {
+    background: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 8px;
+    padding: 10px 25px;
+    box-shadow: none;
+    min-width: auto;
+}
+
+.game-card[data-game="mumario"]:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.game-card[data-game="mumario"]:active {
+    transform: scale(0.95);
+    box-shadow: none;
+}
+
+.game-card[data-game="mumario"] .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    margin-top: 0;
+}
+
 .game-card:hover {
     background: rgba(255, 255, 255, 0.05) !important;
     border-color: rgba(255, 255, 255, 0.2);

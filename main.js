@@ -2,7 +2,7 @@
 
 // GIF Background for Mumario
 const mumarioBg = new Image();
-mumarioBg.src = 'https://i.pinimg.com/originals/46/ac/9e/46ac9e282d3c303934a72d941845785b.gif';
+mumarioBg.src = 'https://i.pinimg.com/1200x/32/56/08/325608924ec64cec5fe900e836bbcea5.jpg';
 
 // Check if mobile device
 const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
