@@ -277,10 +277,6 @@
                         <div class="card-icon">🍄</div>
                         <span class="card-title">Mumario</span>
                     </div>
-                    <div class="game-card" data-game="flappybird">
-                        <div class="card-icon">🐦</div>
-                        <span class="card-title">Flappy Bird</span>
-                    </div>
                 </div>
             </div>
             <div class="player-info">
@@ -289,17 +285,28 @@
         </div>
     </div>
 
-<!-- Game Loading Screen -->
+<!-- Game Loading Screen - Modern AAA Style -->
     <div id="game-loading-screen" class="screen hidden">
         <div class="bg-container">
             <div class="bg-image" style="background-image: url('https://cdn.pixabay.com/photo/2024/05/09/08/07/ai-generated-8750181_1280.jpg');"></div>
             <div class="bg-overlay"></div>
+            <!-- Floating particles -->
+            <div class="loading-particles" id="loading-particles"></div>
         </div>
-        <div class="content-wrapper">
-            <h2 class="loading-title">LOADING GAME</h2>
-            <div class="loading-bar-container">
-                <div class="loading-bar" id="loading-bar"></div>
+        <div class="loading-container">
+            <!-- Game Logo -->
+            <h1 class="loading-logo">RALICEO</h1>
+            <!-- Loading subtitle with animated dots -->
+            <div class="loading-subtitle">
+                Loading Game<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>
             </div>
+            <!-- Modern loading bar -->
+            <div class="loading-bar-wrapper">
+                <div class="loading-bar-container">
+                    <div class="loading-bar" id="loading-bar"></div>
+                </div>
+            </div>
+            <!-- Percentage display -->
             <p class="loading-percentage" id="loading-percentage">0%</p>
         </div>
     </div>
@@ -529,8 +536,6 @@
                 btnJump.classList.add('pressed');
                 if (gameState.currentGame === 'mumario') {
                     mumarioJump();
-                } else if (gameState.currentGame === 'flappybird') {
-                    flappyFlap();
                 } else if (gameState.currentGame === 'dino') {
                     dinoJump();
                 }
@@ -567,8 +572,6 @@
                 btnJump.classList.add('pressed');
                 if (gameState.currentGame === 'mumario') {
                     mumarioJump();
-                } else if (gameState.currentGame === 'flappybird') {
-                    flappyFlap();
                 } else if (gameState.currentGame === 'dino') {
                     dinoJump();
                 }

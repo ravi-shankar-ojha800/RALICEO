@@ -527,11 +527,37 @@ function startGame(gameName) {
     runLoadingAnimation();
 }
 
+// Initialize loading particles
+function initLoadingParticles() {
+    const particlesContainer = document.getElementById('loading-particles');
+    if (!particlesContainer) return;
+    
+    // Clear existing particles
+    particlesContainer.innerHTML = '';
+    
+    // Create floating particles
+    const particleCount = 15;
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'loading-particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 8 + 's';
+        particle.style.animationDuration = (6 + Math.random() * 4) + 's';
+        particle.style.width = (2 + Math.random() * 4) + 'px';
+        particle.style.height = particle.style.width;
+        particlesContainer.appendChild(particle);
+    }
+}
+
 function runLoadingAnimation() {
     const loadingBar = document.getElementById('loading-bar');
     const loadingPercentage = document.getElementById('loading-percentage');
+    const gameLoadingScreen = document.getElementById('game-loading-screen');
     
     let currentStep = 0;
+    
+    // Initialize particles when loading starts
+    initLoadingParticles();
     
     // Clear any existing intervals/timeouts
     if (loadingInterval) clearInterval(loadingInterval);
@@ -542,14 +568,27 @@ function runLoadingAnimation() {
             // Loading complete - start the actual game after a short delay
             if (loadingTimeout) clearTimeout(loadingTimeout);
             loadingTimeout = setTimeout(() => {
-                // Hide loading screen and start game
-                showScreen('game');
-                resetCurrentGame();
-                startCurrentGame();
+                // Smooth fade out loading screen
+                if (gameLoadingScreen) {
+                    gameLoadingScreen.classList.add('fade-out');
+                }
                 
-                // Reset loading state
-                if (loadingBar) loadingBar.style.width = '0%';
-                if (loadingPercentage) loadingPercentage.textContent = '0%';
+                // Wait for fade out animation then show game
+                setTimeout(() => {
+                    // Hide loading screen and start game
+                    showScreen('game');
+                    resetCurrentGame();
+                    startCurrentGame();
+                    
+                    // Reset loading state
+                    if (loadingBar) loadingBar.style.width = '0%';
+                    if (loadingPercentage) loadingPercentage.textContent = '0%';
+                    
+                    // Remove fade-out class for next time
+                    if (gameLoadingScreen) {
+                        gameLoadingScreen.classList.remove('fade-out');
+                    }
+                }, 500);
             }, 300);
             return;
         }
@@ -598,9 +637,6 @@ function startCurrentGame() {
         case 'mumario':
             startMumario();
             break;
-        case 'flappybird':
-            startFlappyBird();
-            break;
     }
 }
 
@@ -637,11 +673,6 @@ function handleKeyDown(event) {
                 dinoJump();
             }
             break;
-        case 'flappybird':
-            if (event.code === 'Space' || event.code === 'ArrowUp' || event.code === 'Enter') {
-                flappyFlap();
-            }
-            break;
         case 'mumario':
             handleMumarioKey(event);
             break;
@@ -655,9 +686,6 @@ function handleTouchStart(event) {
     switch (gameState.currentGame) {
         case 'dino':
             dinoJump();
-            break;
-        case 'flappybird':
-            flappyFlap();
             break;
         case 'mumario':
             mumarioJump();
@@ -964,6 +992,7 @@ function updateDinoScore() {
 let mumario = { x: 100, y: 0, width: 30, height: 40, velocityX: 0, velocityY: 0, isJumping: false, isOnGround: true, wasOnGround: false };
 let mumarioPlatforms = [];
 let mumarioCoins = [];
+
 let mumarioEnemies = [];
 let mumarioCameraX = 0;
 let mumarioParticles = [];
@@ -973,6 +1002,7 @@ let mumarioGroundY = 0;
 let mumarioNextPlatformX = 0;
 let mumarioLastJumpTime = 0;
 let mumarioSquash = 1;
+let mumarioMysteryBlocks = [];
 
 function startMumario() {
     // Play background music
@@ -1496,27 +1526,52 @@ function drawMumario() {
         }
     });
     
-    // Coins with animation
+    // Coins with IMPROVED spinning animation and glow effect
     const time = Date.now() / 200;
+    const coinSpin = Date.now() / 150;
     mumarioCoins.forEach(coin => {
         if (!coin.collected) {
             const bobY = Math.sin(time + coin.animOffset) * 5;
-            ctx.fillStyle = '#FFD700';
+            
+            // Spinning effect - oscillate width to simulate 3D rotation
+            const spinPhase = (coinSpin + coin.animOffset) % (Math.PI * 2);
+            const coinWidth = 8 + Math.abs(Math.cos(spinPhase)) * 12; // 8px to 20px
+            
+            // Glow effect - pulsing shadow
+            const glowIntensity = 0.5 + Math.sin(time * 2 + coin.animOffset) * 0.3;
+            ctx.shadowColor = '#FFD700';
+            ctx.shadowBlur = 15 * glowIntensity;
+            
+            // Main coin body (gold gradient)
+            const coinGradient = ctx.createRadialGradient(
+                coin.x + 10, coin.y + 10 + bobY, 0,
+                coin.x + 10, coin.y + 10 + bobY, 20
+            );
+            coinGradient.addColorStop(0, '#FFEC8B');
+            coinGradient.addColorStop(0.5, '#FFD700');
+            coinGradient.addColorStop(1, '#DAA520');
+            
+            ctx.fillStyle = coinGradient;
             ctx.beginPath();
-            ctx.arc(coin.x + 10, coin.y + 10 + bobY, 10, 0, Math.PI * 2);
+            ctx.ellipse(coin.x + 10, coin.y + 10 + bobY, coinWidth, 10, 0, 0, Math.PI * 2);
             ctx.fill();
-            // Shine
-            ctx.fillStyle = '#FFEC8B';
+            
+            // Shine highlight
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = `rgba(255, 255, 200, ${0.5 + glowIntensity * 0.3})`;
             ctx.beginPath();
-            ctx.arc(coin.x + 7, coin.y + 7 + bobY, 4, 0, Math.PI * 2);
+            ctx.ellipse(coin.x + 7, coin.y + 7 + bobY, coinWidth * 0.3, 4, 0, 0, Math.PI * 2);
             ctx.fill();
-            ctx.strokeStyle = '#DAA520';
-            ctx.lineWidth = 2;
+            
+            // Inner detail line
+            ctx.strokeStyle = '#B8860B';
+            ctx.lineWidth = 1.5;
             ctx.beginPath();
-            ctx.arc(coin.x + 10, coin.y + 10 + bobY, 10, 0, Math.PI * 2);
+            ctx.ellipse(coin.x + 10, coin.y + 10 + bobY, coinWidth - 2, 8, 0, 0, Math.PI * 2);
             ctx.stroke();
         }
     });
+    ctx.shadowBlur = 0;
     
     // Enemies (Goomba-style)
     mumarioEnemies.forEach(enemy => {
@@ -1543,32 +1598,61 @@ function drawMumario() {
         }
     });
     
-    // Player (Improved Mario-style)
+    // Player (Enhanced Mario-style with running animation)
+    // Calculate running animation frame
+    const runCycle = Math.abs(mumario.velocityX) > 0.5 ? Math.sin(Date.now() / 80) * 4 : 0;
+    const isMoving = Math.abs(mumario.velocityX) > 0.5;
+    const facingRight = mumario.velocityX >= 0;
+    
     // Body
     ctx.fillStyle = '#ff0000';
     ctx.fillRect(mumario.x + 2, mumario.y + 12, 26, 22);
     // Hat
     ctx.fillStyle = '#cc0000';
     ctx.fillRect(mumario.x - 3, mumario.y, mumario.width + 6, 14);
-    // Face
+    
+    // Face (changes slightly when jumping)
     ctx.fillStyle = '#FFDAB9';
-    ctx.fillRect(mumario.x + 8, mumario.y + 10, 18, 12);
-    // Eye
-    ctx.fillStyle = '#000';
-    ctx.fillRect(mumario.x + 20, mumario.y + 12, 5, 5);
-    // Mustache
+    const faceOffset = mumario.isJumping ? -1 : 0;
+    ctx.fillRect(mumario.x + 8, mumario.y + 10 + faceOffset, 18, 12);
+    
+    // Eye (with blink occasionally)
+    const blinkFrame = Math.floor(Date.now() / 3000) % 10;
+    if (blinkFrame < 1) {
+        // Blinking - draw line
+        ctx.fillStyle = '#000';
+        ctx.fillRect(mumario.x + 20, mumario.y + 12, 5, 3);
+    } else {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(mumario.x + 20, mumario.y + 12, 5, 5);
+    }
+    
+    // Mustache (with animation when moving)
     ctx.fillStyle = '#4a3020';
-    ctx.fillRect(mumario.x + 18, mumario.y + 20, 10, 3);
+    const mustacheWiggle = isMoving ? Math.sin(Date.now() / 100) * 1 : 0;
+    ctx.fillRect(mumario.x + 18 + mustacheWiggle, mumario.y + 20, 10, 3);
+    
     // Overalls
     ctx.fillStyle = '#0066cc';
     ctx.fillRect(mumario.x + 4, mumario.y + 20, 22, 14);
     ctx.fillStyle = '#0055aa';
     ctx.fillRect(mumario.x + 2, mumario.y + 22, 6, 12);
     ctx.fillRect(mumario.x + 22, mumario.y + 22, 6, 12);
-    // Shoes
+    
+    // Shoes with running animation
+    const leftShoeX = mumario.x - 2 - (isMoving ? runCycle : 0);
+    const rightShoeX = mumario.x + 20 + (isMoving ? runCycle : 0);
     ctx.fillStyle = '#4a3020';
-    ctx.fillRect(mumario.x - 2, mumario.y + 34, 12, 8);
-    ctx.fillRect(mumario.x + 20, mumario.y + 34, 12, 8);
+    ctx.fillRect(leftShoeX, mumario.y + 34, 12, 8);
+    ctx.fillRect(rightShoeX, mumario.y + 34, 12, 8);
+    
+    // Arms with running animation
+    const armY = mumario.y + 18;
+    const leftArmX = mumario.x - (isMoving ? runCycle : 0);
+    const rightArmX = mumario.x + 26 + (isMoving ? runCycle : 0);
+    ctx.fillStyle = '#cc0000';
+    ctx.fillRect(leftArmX, armY, 6, 12);
+    ctx.fillRect(rightArmX, armY, 6, 12);
     
     // Particles
     mumarioParticles.forEach(p => {
@@ -1582,16 +1666,121 @@ function drawMumario() {
     
     ctx.restore();
     
-    // Ground line with glow
-    ctx.shadowColor = '#39ff14';
-    ctx.shadowBlur = 10;
-    ctx.strokeStyle = '#39ff14';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(0, elements.canvas.height - 80);
-    ctx.lineTo(elements.canvas.width, elements.canvas.height - 80);
-    ctx.stroke();
-    ctx.shadowBlur = 0;
+    // ==================== IMPROVED GROUND WITH GRASS & SOIL ====================
+    const groundY = elements.canvas.height - 80;
+    const groundHeight = 80;
+    
+    // Dark soil (bottom layer)
+    ctx.fillStyle = '#3d2817';
+    ctx.fillRect(0, groundY + 15, elements.canvas.width, groundHeight - 15);
+    
+    // Main soil layer with texture
+    ctx.fillStyle = '#5D3A1A';
+    ctx.fillRect(0, groundY + 8, elements.canvas.width, groundHeight - 8);
+    
+    // Add soil texture dots
+    ctx.fillStyle = '#4a2c12';
+    for (let i = 0; i < elements.canvas.width; i += 25) {
+        for (let j = 0; j < 3; j++) {
+            const dotX = i + (j * 8) + 5;
+            const dotY = groundY + 12 + (j * 12);
+            ctx.fillRect(dotX, dotY, 4, 3);
+        }
+    }
+    
+    // Grass layer (top)
+    ctx.fillStyle = '#4a9f3d';
+    ctx.fillRect(0, groundY, elements.canvas.width, 12);
+    
+    // Grass highlights
+    ctx.fillStyle = '#6bc45f';
+    ctx.fillRect(0, groundY, elements.canvas.width, 4);
+    
+    // Grass blades
+    ctx.fillStyle = '#3d8c32';
+    for (let gx = 0; gx < elements.canvas.width; gx += 15) {
+        const gHeight = 6 + (Math.sin(gx * 0.5) * 3);
+        ctx.beginPath();
+        ctx.moveTo(gx, groundY);
+        ctx.lineTo(gx + 3, groundY - gHeight);
+        ctx.lineTo(gx + 6, groundY);
+        ctx.fill();
+    }
+    
+    // Ground top edge highlight
+    ctx.fillStyle = '#7dd672';
+    ctx.fillRect(0, groundY, elements.canvas.width, 2);
+    
+    // ==================== ENVIRONMENTAL DECORATIONS ====================
+    // Draw grass tufts and flowers
+    const decorTime = Date.now() / 1000;
+    for (let dx = 0; dx < elements.canvas.width; dx += 80) {
+        const screenX = dx - (mumarioCameraX % 80);
+        if (screenX < -20 || screenX > elements.canvas.width + 20) continue;
+        
+        const seed = Math.sin(dx * 0.1) * 100;
+        
+        // Small grass tufts
+        ctx.fillStyle = '#3d8c32';
+        for (let g = 0; g < 3; g++) {
+            const gx = screenX + g * 5 + 10;
+            const gh = 4 + Math.sin(decorTime + g) * 2;
+            ctx.beginPath();
+            ctx.moveTo(gx, groundY - 2);
+            ctx.lineTo(gx + 2, groundY - gh);
+            ctx.lineTo(gx + 4, groundY - 2);
+            ctx.fill();
+        }
+        
+        // Random flowers (only some positions)
+        if (Math.abs(Math.sin(seed)) > 0.7) {
+            const flowerColors = ['#ff6b6b', '#ffd93d', '#6bcfff', '#ff9ff3'];
+            const fColor = flowerColors[Math.floor(Math.abs(Math.sin(seed * 3)) * 4)];
+            
+            // Flower petals
+            ctx.fillStyle = fColor;
+            ctx.beginPath();
+            ctx.arc(screenX + 30, groundY - 6, 4, 0, Math.PI * 2);
+            ctx.fill();
+            // Flower center
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.arc(screenX + 30, groundY - 6, 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // Small rocks
+        if (Math.abs(Math.cos(seed)) > 0.6) {
+            ctx.fillStyle = '#666666';
+            ctx.beginPath();
+            ctx.ellipse(screenX + 55, groundY - 1, 6, 3, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#888888';
+            ctx.beginPath();
+            ctx.ellipse(screenX + 54, groundY - 2, 3, 2, 0, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // Mushrooms (rare)
+        if (Math.abs(Math.sin(seed * 2)) > 0.92) {
+            // Stem
+            ctx.fillStyle = '#f5deb3';
+            ctx.fillRect(screenX + 70, groundY - 10, 4, 10);
+            // Cap
+            ctx.fillStyle = '#dc143c';
+            ctx.beginPath();
+            ctx.arc(screenX + 72, groundY - 10, 6, Math.PI, 0);
+            ctx.fill();
+            // White dots on cap
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(screenX + 69, groundY - 12, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(screenX + 75, groundY - 11, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
 }
 
 function mumarioJump() {
@@ -1612,11 +1801,9 @@ function updateMumarioScore() {
     elements.scoreDisplay.textContent = `Score: ${gameState.score}`;
 }
 
-// ==================== GAME 4: FLAPPY BIRD (IMPROVED) ====================
 
-let flappyBird = { x: 0, y: 0, velocity: 0, radius: 18 };
-let flappyPipes = [];
-let flappyPassedPipes = 0;
+
+
 let flappySpeed = 3;
 let flappyGravity = 0.25;
 let flappyParticles = [];

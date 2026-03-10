@@ -1,16 +1,37 @@
-# Loading Screen Implementation
+# RALICEO - Mario Game Improvements TODO
 
-## Steps:
-- [x] 1. Modify startGame function in main.js to show loading screen first
-- [x] 2. Implement loading animation with progressive percentages (0% → 20% → 35% → 60% → 80% → 100%)
-- [x] 3. Add ~4 second delay before starting the actual game
-- [x] 4. Test both Mumario and Flappy Bird games
+## Task: Improve Mario mini-game visually and mechanically
 
-## Summary
-- Added loading screen that appears when clicking on Mumario or Flappy Bird
-- Loading screen shows for ~4 seconds with animated progress bar
-- Progress milestones: 0% → 20% → 35% → 60% → 80% → 100%
-- Uses the GIF from the prompt as background (https://i.pinimg.com/originals/3a/e7/92/3ae792706e97941696b70b4763bd2963.gif)
-- Game starts automatically after reaching 100%
-- No changes to existing game mechanics - both games work the same way after loading
+---
+
+## TODO Items
+
+### Phase 1: Visual Foundation
+- [ ] 1. Update ground drawing (grass + soil layers with texture)
+- [ ] 2. Add environmental decorations (grass tufts, flowers, mushrooms, rocks, bushes)
+- [ ] 3. Add mystery blocks that release coins when hit
+
+### Phase 2: Character & Coins  
+- [ ] 4. Add Mario running animation (leg/arm movement)
+- [ ] 5. Enhance jump animation (rotation, leg tuck)
+- [ ] 6. Improve coin spinning animation (3-frame)
+- [ ] 7. Add coin shine/glow effect
+- [ ] 8. Add coin collection burst animation with particles
+
+### Phase 3: Polish
+- [ ] 9. Enhance enemy animations (body wobble, eye blink)
+- [ ] 10. Add collision feedback improvements
+- [ ] 11. Optimize performance
+
+---
+
+## Implementation Status
+
+### Started: 
+### Completed:
+
+---
+
+## Files Modified
+- main.js - Game logic and drawing functions
 
