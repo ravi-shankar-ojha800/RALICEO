@@ -863,7 +863,7 @@ html, body {
     }
 }
 
-/* ==================== NEW GAME CONTROLS (3 Buttons Only) ==================== */
+/* ==================== NEW GAME CONTROLS (3 Buttons Only) - Premium Transparent Style ==================== */
 .game-controls {
     position: fixed;
     bottom: 20px;
@@ -882,25 +882,34 @@ html, body {
     pointer-events: auto;
 }
 
-/* Left side - RUN and BACK buttons */
+/* Container for left buttons (LEFT/RIGHT) */
 .controls-left {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     pointer-events: auto;
+    background: transparent;
+    padding: 15px 20px;
+    border-radius: 20px;
 }
 
-/* Right side - JUMP button */
+/* Container for right button (JUMP) */
 .controls-right {
     pointer-events: auto;
+    background: transparent;
+    padding: 15px 20px;
+    border-radius: 20px;
 }
 
+/* Premium Transparent Button Style */
 .game-control-btn {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    border: 3px solid rgba(255, 255, 255, 0.6);
-    background: rgba(0, 0, 0, 0.4);
-    color: white;
+    width: 70px;
+    height: 70px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: transparent;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: rgba(255, 255, 255, 0.9);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -908,71 +917,101 @@ html, body {
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.1);
-    transition: all 0.15s ease;
+    box-shadow: none;
+    transition: all 0.2s ease;
     cursor: pointer;
 }
 
+/* Button icon styling - minimal and clean */
 .game-control-btn .btn-icon {
-    font-size: 28px;
+    font-size: 22px;
     line-height: 1;
+    color: rgba(255, 255, 255, 0.85);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
+/* Button label styling - small and subtle */
 .game-control-btn .btn-label {
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 10px;
+    font-weight: 600;
     letter-spacing: 1px;
-    margin-top: 4px;
+    margin-top: 3px;
     text-transform: uppercase;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.7);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-/* RUN Button - green */
+/* LEFT/RIGHT Button - Premium subtle style */
 .game-control-btn.run-btn:active,
 .game-control-btn.run-btn.pressed {
-    background: rgba(57, 255, 20, 0.4);
-    border-color: rgba(57, 255, 20, 0.9);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
     transform: scale(0.95);
-    box-shadow: 0 2px 10px rgba(57, 255, 20, 0.5), inset 0 0 25px rgba(57, 255, 20, 0.3);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .game-control-btn.run-btn .btn-icon {
-    color: #39ff14;
+    color: rgba(255, 255, 255, 0.9);
 }
 
-/* BACK Button - orange */
+/* BACK Button - Premium subtle style */
 .game-control-btn.back-btn {
-    background: rgba(255, 165, 0, 0.35);
+    background: transparent;
 }
 
 .game-control-btn.back-btn:active,
 .game-control-btn.back-btn.pressed {
-    background: rgba(255, 165, 0, 0.6);
-    border-color: rgba(255, 200, 100, 0.9);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
     transform: scale(0.95);
-    box-shadow: 0 2px 10px rgba(255, 165, 0, 0.5), inset 0 0 25px rgba(255, 165, 0, 0.3);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .game-control-btn.back-btn .btn-icon {
-    color: #ffa500;
+    color: rgba(255, 255, 255, 0.9);
 }
 
-/* JUMP Button - red */
+/* JUMP Button - Premium subtle style */
 .game-control-btn.jump-btn-new {
-    background: rgba(255, 100, 100, 0.35);
+    background: transparent;
 }
 
 .game-control-btn.jump-btn-new:active,
 .game-control-btn.jump-btn-new.pressed {
-    background: rgba(255, 100, 100, 0.6);
-    border-color: rgba(255, 150, 150, 0.9);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
     transform: scale(0.95);
-    box-shadow: 0 2px 15px rgba(255, 100, 100, 0.5), inset 0 0 25px rgba(255, 100, 100, 0.3);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .game-control-btn.jump-btn-new .btn-icon {
-    color: #ff6464;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Mobile responsive - smaller buttons for mobile */
+@media (max-width: 768px) {
+    .game-control-btn {
+        width: 60px;
+        height: 60px;
+        border-radius: 14px;
+    }
+    
+    .game-control-btn .btn-icon {
+        font-size: 18px;
+    }
+    
+    .game-control-btn .btn-label {
+        font-size: 8px;
+    }
+    
+    .controls-left,
+    .controls-right {
+        padding: 12px 16px;
+        gap: 15px;
+    }
 }
 
 /* ==================== IMPROVED ORIENTATION SCREEN ==================== */
